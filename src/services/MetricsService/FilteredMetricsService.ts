@@ -5,7 +5,7 @@ import {Platform} from 'react-native';
 import {Status} from 'screens/home/components/NotificationPermissionStatus';
 import {ExposureStatus, ExposureStatusType, SystemStatus} from 'services/ExposureNotificationService';
 import {Key} from 'services/StorageService';
-import {DefaultSecureKeyValueStore} from 'services/StorageService/SecureKeyValueStore';
+import {SecureKeyValueStore} from 'services/StorageService/KeyValueStore';
 import {getHoursBetween, getCurrentDate, datesAreOnSameDay} from 'shared/date-fns';
 import {log} from 'shared/logging/config';
 
@@ -78,7 +78,7 @@ export class FilteredMetricsService {
     this.metricsService = DefaultMetricsService.initialize(
       new DefaultMetricsJsonSerializer(String(APP_VERSION_CODE), Platform.OS),
     );
-    this.stateStorage = new DefaultFilteredMetricsStateStorage(new DefaultSecureKeyValueStore());
+    this.stateStorage = new DefaultFilteredMetricsStateStorage(new SecureKeyValueStore());
     this.serialPromiseQueue = new PQueue({concurrency: 1});
   }
 

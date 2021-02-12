@@ -2,7 +2,7 @@ import {METRICS_API_KEY, METRICS_URL, TEST_MODE} from 'env';
 import PQueue from 'p-queue';
 import {log} from 'shared/logging/config';
 import {getCurrentDate, minutesBetween} from 'shared/date-fns';
-import {DefaultSecureKeyValueStore, SecureKeyValueStore} from 'services/StorageService/SecureKeyValueStore';
+import {SecureKeyValueStore} from 'services/StorageService/KeyValueStore';
 
 import {Metric} from './Metric';
 import {MetricsJsonSerializer} from './MetricsJsonSerializer';
@@ -33,7 +33,7 @@ enum TriggerPushResult {
 export class DefaultMetricsService implements MetricsService {
   static initialize(metricsJsonSerializer: MetricsJsonSerializer): MetricsService {
     if (METRICS_URL) {
-      const secureKeyValueStore = new DefaultSecureKeyValueStore();
+      const secureKeyValueStore = new SecureKeyValueStore();
       const metricsStorage = new DefaultMetricsStorage(secureKeyValueStore);
       const metricsPublisher = new DefaultMetricsPublisher(metricsStorage);
       const metricsProvider = new DefaultMetricsProvider(metricsStorage);

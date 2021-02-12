@@ -1,6 +1,6 @@
-import {SecureKeyValueStore} from 'services/StorageService/SecureKeyValueStore';
+import {KeyValueStore} from 'services/StorageService/KeyValueStore';
 
-export class RNSecureKeyStoreMock implements SecureKeyValueStore {
+export class RNSecureKeyStoreMock implements KeyValueStore {
   private store: Map<string, string>;
 
   constructor() {
@@ -18,6 +18,11 @@ export class RNSecureKeyStoreMock implements SecureKeyValueStore {
 
   save(key: string, value: string): Promise<void> {
     this.store.set(key, value);
+    return Promise.resolve();
+  }
+
+  delete(key: string): Promise<void> {
+    this.store.delete(key);
     return Promise.resolve();
   }
 }
