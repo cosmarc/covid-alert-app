@@ -5,6 +5,7 @@ import {Platform} from 'react-native';
 import {Status} from 'screens/home/components/NotificationPermissionStatus';
 import {ExposureStatus, ExposureStatusType, SystemStatus} from 'services/ExposureNotificationService';
 import {Key} from 'services/StorageService';
+import {DefaultSecureKeyValueStore} from 'services/StorageService/SecureKeyValueStore';
 import {getHoursBetween, getCurrentDate, datesAreOnSameDay} from 'shared/date-fns';
 import {log} from 'shared/logging/config';
 
@@ -12,7 +13,6 @@ import {DefaultFilteredMetricsStateStorage, FilteredMetricsStateStorage} from '.
 import {Metric} from './Metric';
 import {DefaultMetricsJsonSerializer} from './MetricsJsonSerializer';
 import {DefaultMetricsService, MetricsService} from './MetricsService';
-import {DefaultSecureKeyValueStore} from './SecureKeyValueStorage';
 
 export enum EventTypeMetric {
   Installed = 'installed',

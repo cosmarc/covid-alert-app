@@ -1,4 +1,4 @@
-import {SecureKeyValueStore} from './SecureKeyValueStorage';
+import {SecureKeyValueStore} from 'services/StorageService/SecureKeyValueStore';
 
 const InstalledEventMarkerKeyValueUniqueIdentifier = 'A607DDBD-D592-4927-8861-DD1CCEDA8E76';
 const OnboardedEventMarkerKeyValueUniqueIdentifier = '0429518A-9D4D-4EB2-A5A8-AEA985DEB1D7';

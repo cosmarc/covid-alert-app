@@ -2,6 +2,7 @@ import {METRICS_API_KEY, METRICS_URL, TEST_MODE} from 'env';
 import PQueue from 'p-queue';
 import {log} from 'shared/logging/config';
 import {getCurrentDate, minutesBetween} from 'shared/date-fns';
+import {DefaultSecureKeyValueStore, SecureKeyValueStore} from 'services/StorageService/SecureKeyValueStore';
 
 import {Metric} from './Metric';
 import {MetricsJsonSerializer} from './MetricsJsonSerializer';
@@ -9,7 +10,6 @@ import {DefaultMetricsProvider, MetricsProvider} from './MetricsProvider';
 import {DefaultMetricsPublisher, MetricsPublisher} from './MetricsPublisher';
 import {DefaultMetricsPusher, MetricsPusher, MetricsPusherResult} from './MetricsPusher';
 import {DefaultMetricsStorage, MetricsStorageCleaner} from './MetricsStorage';
-import {DefaultSecureKeyValueStore, SecureKeyValueStore} from './SecureKeyValueStorage';
 import {InactiveMetricsService} from './InactiveMetricsService';
 
 const LastMetricTimestampSentToTheServerUniqueIdentifier = '3FFE2346-1910-4FD7-A23F-52D83CFF083A';

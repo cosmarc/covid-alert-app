@@ -1,4 +1,4 @@
-import {SecureKeyValueStore} from '../SecureKeyValueStorage';
+import {SecureKeyValueStore} from 'services/StorageService/SecureKeyValueStore';
 
 export class RNSecureKeyStoreMock implements SecureKeyValueStore {
   private store: Map<string, string>;

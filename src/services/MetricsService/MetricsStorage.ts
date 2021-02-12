@@ -1,8 +1,8 @@
 import PQueue from 'p-queue';
+import {SecureKeyValueStore} from 'services/StorageService/SecureKeyValueStore';
 import {log} from 'shared/logging/config';
 
 import {Metric} from './Metric';
-import {SecureKeyValueStore} from './SecureKeyValueStorage';
 
 const MetricsStorageKeyValueUniqueIdentifier = 'AE6AE306-523B-4D92-871E-9D13D5CA9B23';
 
