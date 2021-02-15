@@ -1,3 +1,4 @@
+/* eslint-disable @shopify/strict-component-boundaries */
 /* eslint-disable require-atomic-updates */
 import {when, resetAllWhenMocks} from 'jest-when';
 import {Platform} from 'react-native';
@@ -7,6 +8,8 @@ import {ExposureSummary} from '../../bridge/ExposureNotification';
 import PushNotification from '../../bridge/PushNotification';
 import {Key} from '../StorageService';
 import {PERIODIC_TASK_INTERVAL_IN_MINUTES} from '../BackgroundSchedulerService';
+import {FutureStorageService} from '../StorageService/FutureStorageService';
+import {StorageDirectory} from '../StorageService/StorageDirectory';
 
 import {
   ExposureNotificationService,
@@ -69,9 +72,10 @@ const storage: any = {
   getItem: jest.fn().mockResolvedValue(null),
   setItem: jest.fn().mockResolvedValueOnce(undefined),
 };
-const secureStorage: any = {
-  get: jest.fn().mockResolvedValue(null),
-  set: jest.fn().mockResolvedValueOnce(undefined),
+const storageService: FutureStorageService = {
+  retrieve: jest.fn().mockResolvedValue(null),
+  save: jest.fn().mockResolvedValueOnce(undefined),
+  delete: jest.fn().mockResolvedValue(null),
 };
 const bridge: any = {
   detectExposure: jest.fn().mockResolvedValue({matchedKeyCount: 0}),
@@ -165,7 +169,7 @@ describe('ExposureNotificationService', () => {
   };
 
   beforeEach(() => {
-    service = new ExposureNotificationService(server, i18n, storage, secureStorage, bridge);
+    service = new ExposureNotificationService(server, i18n, storage, storageService, bridge);
     Platform.OS = 'ios';
     service.systemStatus.set(SystemStatus.Active);
     when(storage.getItem)
@@ -520,8 +524,8 @@ describe('ExposureNotificationService', () => {
     );
 
     currentDateString = '2020-05-20T04:10:00+0000';
-    when(secureStorage.get)
-      .calledWith('submissionAuthKeys')
+    when(storageService.retrieve)
+      .calledWith(StorageDirectory.ExposureNotificationServiceSubmissionAuthKeysKey)
       .mockResolvedValueOnce('{}');
     await service.fetchAndSubmitKeys({dateType: 'noDate', date: null});
 

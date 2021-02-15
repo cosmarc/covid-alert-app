@@ -55,9 +55,10 @@ const storage: any = {
   getItem: jest.fn().mockResolvedValue(null),
   setItem: jest.fn().mockResolvedValueOnce(undefined),
 };
-const secureStorage: any = {
-  get: jest.fn().mockResolvedValue(null),
-  set: jest.fn().mockResolvedValueOnce(undefined),
+const storageService: FutureStorageService = {
+  retrieve: jest.fn().mockResolvedValue(null),
+  save: jest.fn().mockResolvedValueOnce(undefined),
+  delete: jest.fn().mockResolvedValue(null),
 };
 
 const getScanInstance = (typicalAttenuation = 60, seconds = 120) => {
@@ -91,7 +92,7 @@ describe('ExposureNotificationService', () => {
   let service: ExposureNotificationService;
 
   beforeEach(() => {
-    service = new ExposureNotificationService(server, i18n, storage, secureStorage, bridge);
+    service = new ExposureNotificationService(server, i18n, storage, storageService, bridge);
     Platform.OS = 'ios';
   });
 
