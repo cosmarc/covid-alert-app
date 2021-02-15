@@ -5,9 +5,8 @@ import {Key} from 'services/StorageService';
 import PushNotification from 'bridge/PushNotification';
 import {useI18nRef, I18n} from 'locale';
 import PQueue from 'p-queue';
-
-// eslint-disable-next-line @shopify/strict-component-boundaries
-import {DefaultSecureKeyValueStore, SecureKeyValueStore} from '../services/MetricsService/SecureKeyValueStorage';
+import {DefaultFutureStorageService, FutureStorageService} from 'services/StorageService/FutureStorageService';
+import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 import {Observable} from './Observable';
 import {
@@ -21,8 +20,6 @@ import {
 import {createCancellableCallbackPromise} from './cancellablePromise';
 import {getCurrentDate, minutesBetween} from './date-fns';
 import {log} from './logging/config';
-
-const OutbreaksLastCheckedStorageKey = 'A436ED42-707E-11EB-9439-0242AC130002';
 
 const MIN_OUTBREAKS_CHECK_MINUTES = TEST_MODE ? 15 : 240;
 
@@ -39,7 +36,8 @@ export class OutbreakService implements OutbreakService {
   outbreakHistory: Observable<OutbreakHistoryItem[]>;
   checkInHistory: Observable<CheckInData[]>;
   i18n: I18n;
-  secureKeyValueStore: SecureKeyValueStore;
+
+  private storageService: FutureStorageService;
 
   private serialPromiseQueue: PQueue;
 
@@ -47,7 +45,7 @@ export class OutbreakService implements OutbreakService {
     this.outbreakHistory = new Observable<OutbreakHistoryItem[]>([]);
     this.checkInHistory = new Observable<CheckInData[]>([]);
     this.i18n = i18n;
-    this.secureKeyValueStore = new DefaultSecureKeyValueStore();
+    this.storageService = DefaultFutureStorageService.sharedInstance();
     this.serialPromiseQueue = new PQueue({concurrency: 1});
   }
 
@@ -134,13 +132,13 @@ export class OutbreakService implements OutbreakService {
   };
 
   private getOutbreaksLastCheckedDateTime(): Promise<Date | null> {
-    return this.secureKeyValueStore
-      .retrieve(OutbreaksLastCheckedStorageKey)
+    return this.storageService
+      .retrieve(StorageDirectory.OutbreaksLastCheckedStorageKey)
       .then(value => (value ? new Date(Number(value)) : null));
   }
 
   private markOutbreaksLastCheckedDateTime(date: Date): Promise<void> {
-    return this.secureKeyValueStore.save(OutbreaksLastCheckedStorageKey, `${date.getTime()}`);
+    return this.storageService.save(StorageDirectory.OutbreaksLastCheckedStorageKey, `${date.getTime()}`);
   }
 }
 

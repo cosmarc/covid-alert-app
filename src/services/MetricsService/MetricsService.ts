@@ -2,7 +2,8 @@ import {METRICS_API_KEY, METRICS_URL, TEST_MODE} from 'env';
 import PQueue from 'p-queue';
 import {log} from 'shared/logging/config';
 import {getCurrentDate, minutesBetween} from 'shared/date-fns';
-import {SecureKeyValueStore} from 'services/StorageService/KeyValueStore';
+import {DefaultFutureStorageService, FutureStorageService} from 'services/StorageService/FutureStorageService';
+import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 import {Metric} from './Metric';
 import {MetricsJsonSerializer} from './MetricsJsonSerializer';
@@ -11,9 +12,6 @@ import {DefaultMetricsPublisher, MetricsPublisher} from './MetricsPublisher';
 import {DefaultMetricsPusher, MetricsPusher, MetricsPusherResult} from './MetricsPusher';
 import {DefaultMetricsStorage, MetricsStorageCleaner} from './MetricsStorage';
 import {InactiveMetricsService} from './InactiveMetricsService';
-
-const LastMetricTimestampSentToTheServerUniqueIdentifier = '3FFE2346-1910-4FD7-A23F-52D83CFF083A';
-const MetricsLastUploadedDateTime = 'C0663511-3718-4D85-B165-A38155DED2F3';
 
 // eslint-disable-next-line line-comment-position
 const MIN_UPLOAD_MINUTES = TEST_MODE ? 60 : 60 * 24; // 24 hours
@@ -33,13 +31,13 @@ enum TriggerPushResult {
 export class DefaultMetricsService implements MetricsService {
   static initialize(metricsJsonSerializer: MetricsJsonSerializer): MetricsService {
     if (METRICS_URL) {
-      const secureKeyValueStore = new SecureKeyValueStore();
-      const metricsStorage = new DefaultMetricsStorage(secureKeyValueStore);
+      const storageService = DefaultFutureStorageService.sharedInstance();
+      const metricsStorage = new DefaultMetricsStorage(storageService);
       const metricsPublisher = new DefaultMetricsPublisher(metricsStorage);
       const metricsProvider = new DefaultMetricsProvider(metricsStorage);
       const metricsPusher = new DefaultMetricsPusher(METRICS_URL, METRICS_API_KEY);
       return new DefaultMetricsService(
-        secureKeyValueStore,
+        storageService,
         metricsPublisher,
         metricsProvider,
         metricsStorage,
@@ -51,7 +49,7 @@ export class DefaultMetricsService implements MetricsService {
     }
   }
 
-  private secureKeyValueStore: SecureKeyValueStore;
+  private storageService: FutureStorageService;
   private metricsPublisher: MetricsPublisher;
   private metricsProvider: MetricsProvider;
   private metricsStorageCleaner: MetricsStorageCleaner;
@@ -61,14 +59,14 @@ export class DefaultMetricsService implements MetricsService {
   private serialPromiseQueue: PQueue;
 
   private constructor(
-    secureKeyValueStore: SecureKeyValueStore,
+    storageService: FutureStorageService,
     metricsPublisher: MetricsPublisher,
     metricsProvider: MetricsProvider,
     metricsStorageCleaner: MetricsStorageCleaner,
     metricsJsonSerializer: MetricsJsonSerializer,
     metricsPusher: MetricsPusher,
   ) {
-    this.secureKeyValueStore = secureKeyValueStore;
+    this.storageService = storageService;
     this.metricsPublisher = metricsPublisher;
     this.metricsProvider = metricsProvider;
     this.metricsStorageCleaner = metricsStorageCleaner;
@@ -166,22 +164,25 @@ export class DefaultMetricsService implements MetricsService {
   }
 
   private getLastMetricTimestampSentToTheServer(): Promise<number | null> {
-    return this.secureKeyValueStore
-      .retrieve(LastMetricTimestampSentToTheServerUniqueIdentifier)
+    return this.storageService
+      .retrieve(StorageDirectory.MetricsServiceLastMetricTimestampSentToTheServerKey)
       .then(value => (value ? Number(value) : null));
   }
 
   private markLastMetricTimestampSentToTheServer(timestamp: number): Promise<void> {
-    return this.secureKeyValueStore.save(LastMetricTimestampSentToTheServerUniqueIdentifier, `${timestamp}`);
+    return this.storageService.save(
+      StorageDirectory.MetricsServiceLastMetricTimestampSentToTheServerKey,
+      `${timestamp}`,
+    );
   }
 
   private getMetricsLastUploadedDateTime(): Promise<Date | null> {
-    return this.secureKeyValueStore
-      .retrieve(MetricsLastUploadedDateTime)
+    return this.storageService
+      .retrieve(StorageDirectory.MetricsServiceMetricsLastUploadedDateTimeKey)
       .then(value => (value ? new Date(Number(value)) : null));
   }
 
   private markMetricsLastUploadedDateTime(date: Date): Promise<void> {
-    return this.secureKeyValueStore.save(MetricsLastUploadedDateTime, `${date.getTime()}`);
+    return this.storageService.save(StorageDirectory.MetricsServiceMetricsLastUploadedDateTimeKey, `${date.getTime()}`);
   }
 }
