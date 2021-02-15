@@ -4,7 +4,6 @@
 import 'react-native-gesture-handler';
 
 import AsyncStorage from '@react-native-community/async-storage';
-import RNSecureKeyStore from 'react-native-secure-key-store';
 import ExposureNotification from 'bridge/ExposureNotification';
 import {HMAC_KEY, RETRIEVE_URL, SUBMIT_URL} from 'env';
 import {AppRegistry, LogBox, Platform} from 'react-native';
@@ -12,6 +11,7 @@ import {BackendService} from 'services/BackendService';
 import {BackgroundScheduler} from 'services/BackgroundSchedulerService';
 import {ExposureNotificationService} from 'services/ExposureNotificationService';
 import {createBackgroundI18n} from 'locale';
+import {DefaultFutureStorageService} from 'services/StorageService/FutureStorageService';
 
 import {name as appName} from '../app.json';
 
@@ -29,7 +29,7 @@ if (Platform.OS === 'android') {
       backendService,
       i18n,
       AsyncStorage,
-      RNSecureKeyStore,
+      DefaultFutureStorageService.sharedInstance(),
       ExposureNotification,
     );
     await exposureNotificationService.updateExposureStatusInBackground();
@@ -43,7 +43,7 @@ if (Platform.OS === 'android') {
       backendService,
       i18n,
       AsyncStorage,
-      RNSecureKeyStore,
+      DefaultFutureStorageService.sharedInstance(),
       ExposureNotification,
     );
     if (await exposureNotificationService.shouldPerformExposureCheck()) {

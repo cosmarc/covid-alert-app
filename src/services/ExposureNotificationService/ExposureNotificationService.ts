@@ -29,6 +29,8 @@ import {checkNotifications} from 'react-native-permissions';
 import {Status} from 'screens/home/components/NotificationPermissionStatus';
 import {PollNotifications} from 'services/PollNotificationService';
 import {OutbreakService} from 'shared/OutbreakProvider';
+import {FutureStorageService} from 'services/StorageService/FutureStorageService';
+import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 import {BackendInterface, SubmissionKeySet} from '../BackendService';
 import {PERIODIC_TASK_INTERVAL_IN_MINUTES} from '../BackgroundSchedulerService';
@@ -40,10 +42,7 @@ import exposureConfigurationSchema from './ExposureConfigurationSchema.json';
 import {ExposureConfigurationValidator, ExposureConfigurationValidationError} from './ExposureConfigurationValidator';
 import {doesPlatformSupportV2} from './ExposureNotificationServiceUtils';
 
-const SUBMISSION_AUTH_KEYS = 'submissionAuthKeys';
 const EXPOSURE_CONFIGURATION = 'exposureConfiguration';
-
-export const EXPOSURE_HISTORY = 'exposureHistory';
 
 export const EXPOSURE_STATUS = 'exposureStatus';
 
@@ -100,15 +99,6 @@ export interface PersistencyProvider {
   getItem(key: string): Promise<string | null>;
 }
 
-export interface SecurePersistencyProvider {
-  set(key: string, value: string, options: SecureStorageOptions): Promise<null>;
-  get(key: string): Promise<string | null>;
-}
-
-export interface SecureStorageOptions {
-  accessible?: string;
-}
-
 export class ExposureNotificationService {
   systemStatus: Observable<SystemStatus>;
   exposureStatus: MapObservable<ExposureStatus>;
@@ -129,13 +119,13 @@ export class ExposureNotificationService {
 
   private i18n: I18n;
   private storage: PersistencyProvider;
-  private secureStorage: SecurePersistencyProvider;
+  private storageService: FutureStorageService;
 
   constructor(
     backendInterface: BackendInterface,
     i18n: I18n,
     storage: PersistencyProvider,
-    secureStorage: SecurePersistencyProvider,
+    storageService: FutureStorageService,
     exposureNotification: typeof ExposureNotification,
   ) {
     this.i18n = i18n;
@@ -145,12 +135,12 @@ export class ExposureNotificationService {
     this.exposureHistory = new Observable<number[]>([]);
     this.backendInterface = backendInterface;
     this.storage = storage;
-    this.secureStorage = secureStorage;
+    this.storageService = storageService;
     this.exposureStatus.observe(status => {
-      this.storage.setItem(EXPOSURE_STATUS, JSON.stringify(status));
+      this.storageService.save(StorageDirectory.ExposureNotificationServiceExposureStatusKey, JSON.stringify(status));
     });
     this.exposureHistory.observe(history => {
-      this.secureStorage.set(EXPOSURE_HISTORY, history.join(','), {});
+      this.storageService.save(StorageDirectory.ExposureNotificationServiceExposureHistoryKey, history.join(','));
     });
 
     if (Platform.OS === 'android') {
@@ -394,7 +384,7 @@ export class ExposureNotificationService {
     const keys = await this.backendInterface.claimOneTimeCode(oneTimeCode);
     const serialized = JSON.stringify(keys);
     try {
-      await this.secureStorage.set(SUBMISSION_AUTH_KEYS, serialized, {});
+      await this.storageService.save(StorageDirectory.ExposureNotificationServiceSubmissionAuthKeysKey, serialized);
     } catch (error) {
       captureException('Unable to store SUBMISSION_AUTH_KEYS', error);
     }
@@ -409,7 +399,9 @@ export class ExposureNotificationService {
   }
 
   async fetchAndSubmitKeys(contagiousDateInfo: ContagiousDateInfo): Promise<void> {
-    const submissionKeysStr = await this.secureStorage.get(SUBMISSION_AUTH_KEYS);
+    const submissionKeysStr = await this.storageService.retrieve(
+      StorageDirectory.ExposureNotificationServiceSubmissionAuthKeysKey,
+    );
     if (!submissionKeysStr) {
       throw new Error('Submission keys: bad certificate');
     }
@@ -639,7 +631,7 @@ export class ExposureNotificationService {
   public shouldPerformExposureCheck = async () => {
     const today = getCurrentDate();
     const exposureStatus = this.exposureStatus.get();
-    const onboardedDatetime = await this.storage.getItem(Key.OnboardedDatetime);
+    const onboardedDatetime = await this.storageService.retrieve(StorageDirectory.OnboardedDatetimeKey);
 
     if (!onboardedDatetime) {
       log.debug({
@@ -901,13 +893,17 @@ export class ExposureNotificationService {
   }
 
   private async loadExposureStatus() {
-    const exposureStatus = JSON.parse((await this.storage.getItem(EXPOSURE_STATUS)) || 'null');
+    const exposureStatus = JSON.parse(
+      (await this.storageService.retrieve(StorageDirectory.ExposureNotificationServiceExposureStatusKey)) || 'null',
+    );
     this.exposureStatus.append({...exposureStatus});
   }
 
   private async loadExposureHistory() {
     try {
-      const _exposureHistory = await this.secureStorage.get(EXPOSURE_HISTORY);
+      const _exposureHistory = await this.storageService.retrieve(
+        StorageDirectory.ExposureNotificationServiceExposureHistoryKey,
+      );
       if (!_exposureHistory) {
         log.debug({message: "'Unable to retrieve EXPOSURE_HISTORY"});
         return;
@@ -926,7 +922,9 @@ export class ExposureNotificationService {
    */
   private async getAlternateExposureConfiguration(): Promise<ExposureConfiguration> {
     try {
-      const exposureConfigurationStr = await this.storage.getItem(EXPOSURE_CONFIGURATION);
+      const exposureConfigurationStr = await this.storageService.retrieve(
+        StorageDirectory.ExposureNotificationServiceExposureConfigurationKey,
+      );
       if (exposureConfigurationStr) {
         return JSON.parse(exposureConfigurationStr);
       } else {
@@ -1045,7 +1043,7 @@ export class ExposureNotificationService {
         message: 'Using downloaded exposureConfiguration.',
       });
       const serialized = JSON.stringify(exposureConfiguration);
-      await this.storage.setItem(EXPOSURE_CONFIGURATION, serialized);
+      await this.storageService.save(StorageDirectory.ExposureNotificationServiceExposureConfigurationKey, serialized);
       log.debug({
         category: 'configuration',
         message: 'Saving exposure configuration to secure storage.',

@@ -3,22 +3,17 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {useI18nRef} from 'locale';
 import ExposureNotification, {Status as SystemStatus} from 'bridge/ExposureNotification';
 import {AppState, AppStateStatus, Platform} from 'react-native';
-import RNSecureKeyStore from 'react-native-secure-key-store';
 import SystemSetting from 'react-native-system-setting';
 import {ContagiousDateInfo} from 'shared/DataSharing';
 import {useStorage} from 'services/StorageService';
 import {log} from 'shared/logging/config';
 import {EventTypeMetric, FilteredMetricsService} from 'services/MetricsService/FilteredMetricsService';
+import {DefaultFutureStorageService, FutureStorageService} from 'services/StorageService/FutureStorageService';
 
 import {BackendInterface} from '../BackendService';
 import {BackgroundScheduler} from '../BackgroundSchedulerService';
 
-import {
-  ExposureNotificationService,
-  ExposureStatus,
-  PersistencyProvider,
-  SecurePersistencyProvider,
-} from './ExposureNotificationService';
+import {ExposureNotificationService, ExposureStatus, PersistencyProvider} from './ExposureNotificationService';
 
 const ExposureNotificationServiceContext = createContext<ExposureNotificationService | undefined>(undefined);
 
@@ -27,7 +22,7 @@ export interface ExposureNotificationServiceProviderProps {
   backgroundScheduler?: typeof BackgroundScheduler;
   exposureNotification?: typeof ExposureNotification;
   storage?: PersistencyProvider;
-  secureStorage?: SecurePersistencyProvider;
+  storageService?: FutureStorageService;
   children?: React.ReactElement;
 }
 
@@ -36,7 +31,7 @@ export const ExposureNotificationServiceProvider = ({
   backgroundScheduler = BackgroundScheduler,
   exposureNotification,
   storage,
-  secureStorage,
+  storageService,
   children,
 }: ExposureNotificationServiceProviderProps) => {
   const i18n = useI18nRef();
@@ -47,10 +42,10 @@ export const ExposureNotificationServiceProvider = ({
         backendInterface,
         i18n,
         storage || AsyncStorage,
-        secureStorage || RNSecureKeyStore,
+        storageService || DefaultFutureStorageService.sharedInstance(),
         exposureNotification || ExposureNotification,
       ),
-    [backendInterface, exposureNotification, i18n, secureStorage, storage],
+    [backendInterface, exposureNotification, i18n, storage, storageService],
   );
 
   useEffect(() => {

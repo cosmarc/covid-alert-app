@@ -8,6 +8,17 @@ export class StorageDirectory {
     storageType: StorageType.Secure,
   };
 
+  // ExposureNotificationService.ts
+  static readonly ExposureNotificationServiceExposureHistoryKey: KeyDefinition = {
+    keyIdentifier: 'exposureHistory',
+    storageType: StorageType.Secure,
+  };
+
+  static readonly ExposureNotificationServiceSubmissionAuthKeysKey: KeyDefinition = {
+    keyIdentifier: 'submissionAuthKeys',
+    storageType: StorageType.Secure,
+  };
+
   // MetricsStorage.ts
   static readonly MetricsStorageKey: KeyDefinition = {
     keyIdentifier: 'AE6AE306-523B-4D92-871E-9D13D5CA9B23',
