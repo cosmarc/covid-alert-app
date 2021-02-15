@@ -1,8 +1,6 @@
 import {Metric} from '../Metric';
 import {DefaultMetricsJsonSerializer} from '../MetricsJsonSerializer';
 
-import {MetricFactory} from './MetricFactory';
-
 describe('MetricsJsonSerializer', () => {
   it('can serialize metrics in JSON', async () => {
     const appVersion = '0.0.7';
