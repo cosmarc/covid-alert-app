@@ -20,6 +20,7 @@ import {BackendService} from 'services/BackendService';
 import {I18nProvider, RegionalProvider} from 'locale';
 import {ThemeProvider} from 'shared/theme';
 import {AccessibilityServiceProvider} from 'services/AccessibilityService';
+import {DefaultFutureStorageService} from 'services/StorageService/FutureStorageService';
 
 import regionContentDefault from './locale/translations/region.json';
 import {RegionContent, RegionContentResponse} from './shared/Region';
@@ -44,9 +45,17 @@ const appInit = async () => {
 const App = () => {
   const initialRegionContent: RegionContent = regionContentDefault as RegionContent;
   const storageService = useStorageService();
-  const backendService = useMemo(() => new BackendService(RETRIEVE_URL, SUBMIT_URL, HMAC_KEY, storageService?.region), [
-    storageService,
-  ]);
+  const backendService = useMemo(
+    () =>
+      new BackendService(
+        RETRIEVE_URL,
+        SUBMIT_URL,
+        HMAC_KEY,
+        storageService?.region,
+        DefaultFutureStorageService.sharedInstance(),
+      ),
+    [storageService],
+  );
 
   const [regionContent, setRegionContent] = useState<IFetchData>({payload: initialRegionContent});
 
@@ -82,7 +91,7 @@ const App = () => {
       <RegionalProvider activeRegions={[]} translate={id => id} regionContent={regionContent.payload}>
         <ExposureNotificationServiceProvider backendInterface={backendService}>
           <OutbreakProvider>
-            <DevPersistedNavigationContainer persistKey="navigationState">
+            <DevPersistedNavigationContainer>
               <AccessibilityServiceProvider>
                 <MainNavigator />
               </AccessibilityServiceProvider>

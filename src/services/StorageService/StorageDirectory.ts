@@ -2,6 +2,57 @@ import {KeyDefinition, StorageType} from './FutureStorageService';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class StorageDirectory {
+  // TO REORGANIZE
+  static readonly OnboardedDatetimeKey: KeyDefinition = {
+    keyIdentifier: 'OnboardedDatetime',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly NavigationStateKey: KeyDefinition = {
+    keyIdentifier: 'navigationState',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly RegionKey: KeyDefinition = {
+    keyIdentifier: 'Region',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly LocaleKey: KeyDefinition = {
+    keyIdentifier: 'Locale',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly OutbreakHistoryKey: KeyDefinition = {
+    keyIdentifier: 'OutbreakHistory',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly CheckInHistoryKey: KeyDefinition = {
+    keyIdentifier: 'CheckInHistory',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly InitialTekUploadCompleteKey: KeyDefinition = {
+    keyIdentifier: 'INITIAL_TEK_UPLOAD_COMPLETE',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly RegionContentKey: KeyDefinition = {
+    keyIdentifier: '30F6F699-43F7-44A1-B138-89278C25A1AB',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly LastUploadedTekStartTimeKey: KeyDefinition = {
+    keyIdentifier: 'LAST_UPLOADED_TEK_START_TIME',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly UUIDKey: KeyDefinition = {
+    keyIdentifier: 'UUID_KEY',
+    storageType: StorageType.Unsecure,
+  };
+
   // OutbreakProvider.tsx
   static readonly OutbreaksLastCheckedStorageKey: KeyDefinition = {
     keyIdentifier: 'A436ED42-707E-11EB-9439-0242AC130002',
@@ -19,7 +70,27 @@ export class StorageDirectory {
     storageType: StorageType.Secure,
   };
 
+  static readonly ExposureNotificationServiceExposureStatusKey: KeyDefinition = {
+    keyIdentifier: 'exposureStatus',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly ExposureNotificationServiceExposureConfigurationKey: KeyDefinition = {
+    keyIdentifier: 'exposureConfiguration',
+    storageType: StorageType.Unsecure,
+  };
+
   // PollNotificationService.ts
+  static readonly PollNotificationServiceReadReceiptsKey: KeyDefinition = {
+    keyIdentifier: 'NotificationReadReceipts',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly PollNotificationServiceEtagStorageKey: KeyDefinition = {
+    keyIdentifier: 'NotificationsEtag',
+    storageType: StorageType.Unsecure,
+  };
+
   static readonly PollNotificationServiceLastPollNotificationDateTimeKey: KeyDefinition = {
     keyIdentifier: 'LastPollNotificationDateTimeKey',
     storageType: StorageType.Secure,

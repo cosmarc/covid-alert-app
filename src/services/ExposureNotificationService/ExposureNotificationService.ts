@@ -34,17 +34,12 @@ import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 import {BackendInterface, SubmissionKeySet} from '../BackendService';
 import {PERIODIC_TASK_INTERVAL_IN_MINUTES} from '../BackgroundSchedulerService';
-import {Key} from '../StorageService';
 import ExposureCheckScheduler from '../../bridge/ExposureCheckScheduler';
 
 import exposureConfigurationDefault from './ExposureConfigurationDefault.json';
 import exposureConfigurationSchema from './ExposureConfigurationSchema.json';
 import {ExposureConfigurationValidator, ExposureConfigurationValidationError} from './ExposureConfigurationValidator';
 import {doesPlatformSupportV2} from './ExposureNotificationServiceUtils';
-
-const EXPOSURE_CONFIGURATION = 'exposureConfiguration';
-
-export const EXPOSURE_STATUS = 'exposureStatus';
 
 export const HOURS_PER_PERIOD = 24;
 
@@ -94,11 +89,6 @@ export type ExposureStatus =
       ignoredSummaries?: ExposureSummary[];
     };
 
-export interface PersistencyProvider {
-  setItem(key: string, value: string): Promise<void>;
-  getItem(key: string): Promise<string | null>;
-}
-
 export class ExposureNotificationService {
   systemStatus: Observable<SystemStatus>;
   exposureStatus: MapObservable<ExposureStatus>;
@@ -118,13 +108,11 @@ export class ExposureNotificationService {
   private backendInterface: BackendInterface;
 
   private i18n: I18n;
-  private storage: PersistencyProvider;
   private storageService: FutureStorageService;
 
   constructor(
     backendInterface: BackendInterface,
     i18n: I18n,
-    storage: PersistencyProvider,
     storageService: FutureStorageService,
     exposureNotification: typeof ExposureNotification,
   ) {
@@ -134,7 +122,6 @@ export class ExposureNotificationService {
     this.exposureStatus = new MapObservable<ExposureStatus>({type: ExposureStatusType.Monitoring});
     this.exposureHistory = new Observable<number[]>([]);
     this.backendInterface = backendInterface;
-    this.storage = storage;
     this.storageService = storageService;
     this.exposureStatus.observe(status => {
       this.storageService.save(StorageDirectory.ExposureNotificationServiceExposureStatusKey, JSON.stringify(status));

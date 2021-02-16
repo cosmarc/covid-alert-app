@@ -1,5 +1,4 @@
 import PushNotification from 'bridge/PushNotification';
-import AsyncStorage from '@react-native-community/async-storage';
 import {APP_VERSION_NAME, NOTIFICATION_FEED_URL, TEST_MODE} from 'env';
 import semver from 'semver';
 import {log} from 'shared/logging/config';
@@ -9,9 +8,6 @@ import {DefaultFutureStorageService} from 'services/StorageService/FutureStorage
 import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 import {NotificationMessage} from './types';
-
-const READ_RECEIPTS_KEY = 'NotificationReadReceipts';
-const ETAG_STORAGE_KEY = 'NotificationsEtag';
 
 // 24 hours
 const MIN_POLL_NOTIFICATION_MINUTES = TEST_MODE ? 2 : 60 * 24;

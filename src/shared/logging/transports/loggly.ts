@@ -1,8 +1,9 @@
 import {Platform} from 'react-native';
 import {APP_VERSION_CODE, APP_VERSION_NAME, LOGGLY_URL, EN_API_VERSION} from 'env';
 import {transportFunctionType} from 'react-native-logs';
-import AsyncStorage from '@react-native-community/async-storage';
 import {getCurrentDate, minutesBetween} from 'shared/date-fns';
+import {DefaultFutureStorageService} from 'services/StorageService/FutureStorageService';
+import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 import {getLogUUID} from '../uuid';
 
@@ -18,7 +19,9 @@ const logglyTransport: transportFunctionType = async (msg, level, _options) => {
   // used for staging env - never production
   if (LOGGLY_URL) {
     const today = getCurrentDate();
-    const exposureStatusJson = await AsyncStorage.getItem('exposureStatus');
+    const exposureStatusJson = await DefaultFutureStorageService.sharedInstance().retrieve(
+      StorageDirectory.ExposureNotificationServiceExposureStatusKey,
+    );
 
     if (exposureStatusJson) {
       const exposureStatus = JSON.parse(exposureStatusJson);

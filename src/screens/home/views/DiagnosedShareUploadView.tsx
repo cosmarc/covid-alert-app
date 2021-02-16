@@ -3,8 +3,8 @@ import {useI18n} from 'locale';
 import {useNavigation} from '@react-navigation/native';
 import {Text, ButtonSingleLine, RoundedBox} from 'components';
 import {useAccessibilityAutoFocus} from 'shared/useAccessibilityAutoFocus';
-import AsyncStorage from '@react-native-community/async-storage';
-import {INITIAL_TEK_UPLOAD_COMPLETE} from 'shared/DataSharing';
+import {DefaultFutureStorageService} from 'services/StorageService/FutureStorageService';
+import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 import {BaseHomeView} from '../components/BaseHomeView';
 
@@ -12,7 +12,9 @@ export const DiagnosedShareUploadView = ({isBottomSheetExpanded}: {isBottomSheet
   const i18n = useI18n();
   const navigation = useNavigation();
   const toDataShare = useCallback(async () => {
-    const initialTekUploadComplete = await AsyncStorage.getItem(INITIAL_TEK_UPLOAD_COMPLETE);
+    const initialTekUploadComplete = await DefaultFutureStorageService.sharedInstance().retrieve(
+      StorageDirectory.InitialTekUploadCompleteKey,
+    );
     const screen = initialTekUploadComplete === 'false' ? 'IntermediateScreen' : 'TekUploadSubsequentDays';
     return navigation.navigate('DataSharing', {screen});
   }, [navigation]);

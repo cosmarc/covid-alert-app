@@ -1,12 +1,16 @@
 import {TEST_MODE} from 'env';
-import AsyncStorage from '@react-native-community/async-storage';
 import React, {useContext, useEffect, useMemo, useState} from 'react';
-import {Key} from 'services/StorageService';
 import PushNotification from 'bridge/PushNotification';
 import {useI18nRef, I18n} from 'locale';
 import PQueue from 'p-queue';
 import {DefaultFutureStorageService, FutureStorageService} from 'services/StorageService/FutureStorageService';
 import {StorageDirectory} from 'services/StorageService/StorageDirectory';
+<<<<<<< HEAD
+=======
+
+// eslint-disable-next-line @shopify/strict-component-boundaries
+import {DefaultSecureKeyValueStore, SecureKeyValueStore} from '../services/MetricsService/SecureKeyValueStorage';
+>>>>>>> 7c2269cc (Replaced AsyncStorage (unsecure) solution with new StorageService)
 
 import {Observable} from './Observable';
 import {
@@ -41,49 +45,55 @@ export class OutbreakService implements OutbreakService {
 
   private serialPromiseQueue: PQueue;
 
+  private storageService: FutureStorageService;
+
   constructor(i18n: I18n) {
     this.outbreakHistory = new Observable<OutbreakHistoryItem[]>([]);
     this.checkInHistory = new Observable<CheckInData[]>([]);
     this.i18n = i18n;
     this.storageService = DefaultFutureStorageService.sharedInstance();
+<<<<<<< HEAD
+=======
+    this.secureKeyValueStore = new DefaultSecureKeyValueStore();
+>>>>>>> 7c2269cc (Replaced AsyncStorage (unsecure) solution with new StorageService)
     this.serialPromiseQueue = new PQueue({concurrency: 1});
   }
 
   clearOutbreakHistory = async () => {
-    await AsyncStorage.setItem(Key.OutbreakHistory, JSON.stringify([]));
+    await this.storageService.save(StorageDirectory.OutbreakHistoryKey, JSON.stringify([]));
     this.outbreakHistory.set([]);
   };
 
   addToOutbreakHistory = async (value: OutbreakHistoryItem[]) => {
-    const _outbreakHistory = (await AsyncStorage.getItem(Key.OutbreakHistory)) || '[]';
+    const _outbreakHistory = (await this.storageService.retrieve(StorageDirectory.OutbreakHistoryKey)) || '[]';
     const outbreakHistory = JSON.parse(_outbreakHistory);
     const newOutbreakHistory = outbreakHistory.concat(value);
-    await AsyncStorage.setItem(Key.OutbreakHistory, JSON.stringify(newOutbreakHistory));
+    await this.storageService.save(StorageDirectory.OutbreakHistoryKey, JSON.stringify(newOutbreakHistory));
     this.outbreakHistory.set(newOutbreakHistory);
   };
 
   addCheckIn = async (value: CheckInData) => {
-    const _checkInHistory = (await AsyncStorage.getItem(Key.CheckInHistory)) || '[]';
+    const _checkInHistory = (await this.storageService.retrieve(StorageDirectory.CheckInHistoryKey)) || '[]';
     const checkInHistory = JSON.parse(_checkInHistory);
     checkInHistory.push(value);
-    await AsyncStorage.setItem(Key.CheckInHistory, JSON.stringify(checkInHistory));
+    await this.storageService.save(StorageDirectory.CheckInHistoryKey, JSON.stringify(checkInHistory));
     this.checkInHistory.set(checkInHistory);
   };
 
   removeCheckIn = async () => {
     // removes most recent Check In
-    const _checkInHistory = (await AsyncStorage.getItem(Key.CheckInHistory)) || '[]';
+    const _checkInHistory = (await this.storageService.retrieve(StorageDirectory.CheckInHistoryKey)) || '[]';
     const checkInHistory = JSON.parse(_checkInHistory);
     const newCheckInHistory = checkInHistory.slice(0, -1);
-    await AsyncStorage.setItem(Key.CheckInHistory, JSON.stringify(newCheckInHistory));
+    await this.storageService.save(StorageDirectory.CheckInHistoryKey, JSON.stringify(newCheckInHistory));
     this.checkInHistory.set(newCheckInHistory);
   };
 
   init = async () => {
-    const outbreakHistory = (await AsyncStorage.getItem(Key.OutbreakHistory)) || '[]';
+    const outbreakHistory = (await this.storageService.retrieve(StorageDirectory.OutbreakHistoryKey)) || '[]';
     this.outbreakHistory.set(JSON.parse(outbreakHistory));
 
-    const checkInHistory = (await AsyncStorage.getItem(Key.CheckInHistory)) || '[]';
+    const checkInHistory = (await this.storageService.retrieve(StorageDirectory.CheckInHistoryKey)) || '[]';
     this.checkInHistory.set(JSON.parse(checkInHistory));
   };
 

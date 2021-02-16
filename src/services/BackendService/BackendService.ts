@@ -10,9 +10,10 @@ import {MCC_CODE, REGION_JSON_URL, EN_CONFIG_URL} from 'env';
 import {captureMessage, captureException} from 'shared/log';
 import {getMillisSinceUTCEpoch, hoursSinceEpoch} from 'shared/date-fns';
 import {ContagiousDateInfo, ContagiousDateType} from 'shared/DataSharing';
-import AsyncStorage from '@react-native-community/async-storage';
 import regionSchema from 'locale/translations/regionSchema.json';
 import JsonSchemaValidator from 'shared/JsonSchemaValidator';
+import {FutureStorageService} from 'services/StorageService/FutureStorageService';
+import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 import {Observable} from '../../shared/Observable';
 import {Region, RegionContentResponse} from '../../shared/Region';
@@ -25,7 +26,6 @@ const MAX_UPLOAD_KEYS = 28;
 const FETCH_HEADERS = {headers: {'Cache-Control': 'no-store'}};
 const TRANSMISSION_RISK_LEVEL = 1;
 const TEN_MINUTE_PERIODS_PER_HOUR = 6;
-export const LAST_UPLOADED_TEK_START_TIME = 'LAST_UPLOADED_TEK_START_TIME';
 
 // See https://github.com/cds-snc/covid-shield-server/pull/176
 const LAST_14_DAYS_PERIOD = '00000';
@@ -39,16 +39,20 @@ export class BackendService implements BackendInterface {
   hmacKey: string;
   region: Observable<Region | undefined> | undefined;
 
+  private storageService: FutureStorageService;
+
   constructor(
     retrieveUrl: string,
     submitUrl: string,
     hmacKey: string,
     region: Observable<Region | undefined> | undefined,
+    storageService: FutureStorageService,
   ) {
     this.retrieveUrl = retrieveUrl;
     this.submitUrl = submitUrl;
     this.hmacKey = hmacKey;
     this.region = region;
+    this.storageService = storageService;
   }
 
   async retrieveDiagnosisKeys(period: number) {
@@ -73,7 +77,7 @@ export class BackendService implements BackendInterface {
   };
 
   async getStoredRegionContent(): Promise<RegionContentResponse> {
-    const storedRegionContent = await AsyncStorage.getItem(this.getRegionContentUrl());
+    const storedRegionContent = await this.storageService.retrieve(StorageDirectory.RegionContentKey);
     if (storedRegionContent) {
       return {status: 200, payload: JSON.parse(storedRegionContent)};
     }
@@ -86,7 +90,7 @@ export class BackendService implements BackendInterface {
       const response = await fetch(this.getRegionContentUrl(), FETCH_HEADERS);
       const payload = await response.json();
       this.isValidRegionContent({status: response.status, payload});
-      await AsyncStorage.setItem(this.getRegionContentUrl(), JSON.stringify(payload));
+      await this.storageService.save(StorageDirectory.RegionContentKey, JSON.stringify(payload));
       return {status: 200, payload};
     } catch (err) {
       captureMessage('getRegionContent - fetch error', {err: err.message});
@@ -169,11 +173,13 @@ export class BackendService implements BackendInterface {
       return;
     }
     const lastUploadedTekStartTime = uploadedTEKs[0].rollingStartIntervalNumber.toString();
-    await AsyncStorage.setItem(LAST_UPLOADED_TEK_START_TIME, lastUploadedTekStartTime);
+    await this.storageService.save(StorageDirectory.LastUploadedTekStartTimeKey, lastUploadedTekStartTime);
   };
 
   filterOldTEKs = async () => {
-    const lastUploadedTekStartTime = Number(await AsyncStorage.getItem(LAST_UPLOADED_TEK_START_TIME));
+    const lastUploadedTekStartTime = Number(
+      await this.storageService.retrieve(StorageDirectory.LastUploadedTekStartTimeKey),
+    );
     return (key: TemporaryExposureKey) => {
       if (!lastUploadedTekStartTime) {
         return true;

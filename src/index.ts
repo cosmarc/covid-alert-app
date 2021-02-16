@@ -3,7 +3,6 @@
  */
 import 'react-native-gesture-handler';
 
-import AsyncStorage from '@react-native-community/async-storage';
 import ExposureNotification from 'bridge/ExposureNotification';
 import {HMAC_KEY, RETRIEVE_URL, SUBMIT_URL} from 'env';
 import {AppRegistry, LogBox, Platform} from 'react-native';
@@ -23,12 +22,17 @@ AppRegistry.registerComponent(appName, () => App);
 if (Platform.OS === 'android') {
   BackgroundScheduler.registerAndroidHeadlessPeriodicTask(async () => {
     const storageService = await createStorageService();
-    const backendService = new BackendService(RETRIEVE_URL, SUBMIT_URL, HMAC_KEY, storageService?.region);
+    const backendService = new BackendService(
+      RETRIEVE_URL,
+      SUBMIT_URL,
+      HMAC_KEY,
+      storageService?.region,
+      DefaultFutureStorageService.sharedInstance(),
+    );
     const i18n = await createBackgroundI18n();
     const exposureNotificationService = new ExposureNotificationService(
       backendService,
       i18n,
-      AsyncStorage,
       DefaultFutureStorageService.sharedInstance(),
       ExposureNotification,
     );
@@ -37,12 +41,17 @@ if (Platform.OS === 'android') {
 
   BackgroundScheduler.registerAndroidHeadlessExposureCheckPeriodicTask(async () => {
     const storageService = await createStorageService();
-    const backendService = new BackendService(RETRIEVE_URL, SUBMIT_URL, HMAC_KEY, storageService?.region);
+    const backendService = new BackendService(
+      RETRIEVE_URL,
+      SUBMIT_URL,
+      HMAC_KEY,
+      storageService?.region,
+      DefaultFutureStorageService.sharedInstance(),
+    );
     const i18n = await createBackgroundI18n();
     const exposureNotificationService = new ExposureNotificationService(
       backendService,
       i18n,
-      AsyncStorage,
       DefaultFutureStorageService.sharedInstance(),
       ExposureNotification,
     );
