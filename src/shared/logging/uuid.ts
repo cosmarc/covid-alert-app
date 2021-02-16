@@ -1,4 +1,4 @@
-import {DefaultFutureStorageService} from 'services/StorageService/FutureStorageService';
+import {DefaultStorageService} from 'services/StorageService/StorageService';
 import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 let currentUUID = '';
@@ -9,18 +9,18 @@ const getRandomString = (size: number) => {
   return [...Array(size)].map(_ => chars[(Math.random() * chars.length) | 0]).join('');
 };
 
-const cachedUUID = DefaultFutureStorageService.sharedInstance()
+const cachedUUID = DefaultStorageService.sharedInstance()
   .retrieve(StorageDirectory.UUIDKey)
   .then(uuid => uuid || getRandomString(8))
   .then(uuid => {
-    DefaultFutureStorageService.sharedInstance().save(StorageDirectory.UUIDKey, uuid);
+    DefaultStorageService.sharedInstance().save(StorageDirectory.UUIDKey, uuid);
     return uuid;
   })
   .catch(() => null);
 
 export const setLogUUID = (uuid: string) => {
   currentUUID = uuid;
-  DefaultFutureStorageService.sharedInstance().save(StorageDirectory.UUIDKey, uuid);
+  DefaultStorageService.sharedInstance().save(StorageDirectory.UUIDKey, uuid);
 };
 
 export const getLogUUID = async () => {

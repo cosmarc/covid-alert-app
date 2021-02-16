@@ -12,7 +12,7 @@ import {getMillisSinceUTCEpoch, hoursSinceEpoch} from 'shared/date-fns';
 import {ContagiousDateInfo, ContagiousDateType} from 'shared/DataSharing';
 import regionSchema from 'locale/translations/regionSchema.json';
 import JsonSchemaValidator from 'shared/JsonSchemaValidator';
-import {FutureStorageService} from 'services/StorageService/FutureStorageService';
+import {StorageService} from 'services/StorageService/StorageService';
 import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 import {RegionContentResponse} from '../../shared/Region';
@@ -37,9 +37,9 @@ export class BackendService implements BackendInterface {
   submitUrl: string;
   hmacKey: string;
 
-  private storageService: FutureStorageService;
+  private storageService: StorageService;
 
-  constructor(retrieveUrl: string, submitUrl: string, hmacKey: string, storageService: FutureStorageService) {
+  constructor(retrieveUrl: string, submitUrl: string, hmacKey: string, storageService: StorageService) {
     this.retrieveUrl = retrieveUrl;
     this.submitUrl = submitUrl;
     this.hmacKey = hmacKey;

@@ -4,7 +4,7 @@ import semver from 'semver';
 import {log} from 'shared/logging/config';
 import {getCurrentDate, minutesBetween} from 'shared/date-fns';
 import {I18n} from 'locale';
-import {DefaultFutureStorageService} from 'services/StorageService/FutureStorageService';
+import {DefaultStorageService} from 'services/StorageService/StorageService';
 import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 import {NotificationMessage} from './types';
@@ -24,9 +24,9 @@ const checkForNotifications = async (i18n: I18n) => {
   const readReceipts: string[] = await getReadReceipts();
 
   const selectedRegion: string =
-    (await DefaultFutureStorageService.sharedInstance().retrieve(StorageDirectory.RegionKey)) || 'CA';
+    (await DefaultStorageService.sharedInstance().retrieve(StorageDirectory.RegionKey)) || 'CA';
   const selectedLocale: string =
-    (await DefaultFutureStorageService.sharedInstance().retrieve(StorageDirectory.LocaleKey)) || 'en';
+    (await DefaultStorageService.sharedInstance().retrieve(StorageDirectory.LocaleKey)) || 'en';
   const messageToDisplay = messages.find(message =>
     shouldDisplayNotification(message, selectedRegion, selectedLocale, readReceipts),
   );
@@ -49,7 +49,7 @@ const checkForNotifications = async (i18n: I18n) => {
 };
 
 const getReadReceipts = async (): Promise<string[]> => {
-  const readReceipts = await DefaultFutureStorageService.sharedInstance().retrieve(
+  const readReceipts = await DefaultStorageService.sharedInstance().retrieve(
     StorageDirectory.PollNotificationServiceReadReceiptsKey,
   );
 
@@ -61,14 +61,14 @@ const getReadReceipts = async (): Promise<string[]> => {
 };
 
 const saveReadReceipts = async (receipts: string[]) => {
-  await DefaultFutureStorageService.sharedInstance().save(
+  await DefaultStorageService.sharedInstance().save(
     StorageDirectory.PollNotificationServiceReadReceiptsKey,
     JSON.stringify(receipts),
   );
 };
 
 const clearNotificationReceipts = async () => {
-  await DefaultFutureStorageService.sharedInstance().delete(StorageDirectory.PollNotificationServiceReadReceiptsKey);
+  await DefaultStorageService.sharedInstance().delete(StorageDirectory.PollNotificationServiceReadReceiptsKey);
 };
 
 const shouldDisplayNotification = (
@@ -116,7 +116,7 @@ const checkRegion = (target: string[], selected: string): boolean => {
 
 // Fetch notifications from the endpoint
 const fetchNotifications = async (): Promise<NotificationMessage[]> => {
-  const etag = await DefaultFutureStorageService.sharedInstance().retrieve(
+  const etag = await DefaultStorageService.sharedInstance().retrieve(
     StorageDirectory.PollNotificationServiceEtagStorageKey,
   );
   const headers: any = {};
@@ -168,7 +168,7 @@ const fetchNotifications = async (): Promise<NotificationMessage[]> => {
         category: 'debug',
         message: 'Storing etag',
       });
-      await DefaultFutureStorageService.sharedInstance().save(
+      await DefaultStorageService.sharedInstance().save(
         StorageDirectory.PollNotificationServiceEtagStorageKey,
         newEtag,
       );
@@ -206,13 +206,13 @@ const shouldPollNotifications = (lastPollNotificationDateTime: Date | null): boo
 };
 
 const getLastPollNotificationDateTime = async (): Promise<Date | null> => {
-  return DefaultFutureStorageService.sharedInstance()
+  return DefaultStorageService.sharedInstance()
     .retrieve(StorageDirectory.PollNotificationServiceLastPollNotificationDateTimeKey)
     .then(value => (value ? new Date(Number(value)) : null));
 };
 
 const markLastPollDateTime = async (date: Date): Promise<void> => {
-  return DefaultFutureStorageService.sharedInstance().save(
+  return DefaultStorageService.sharedInstance().save(
     StorageDirectory.PollNotificationServiceLastPollNotificationDateTimeKey,
     `${date.getTime()}`,
   );

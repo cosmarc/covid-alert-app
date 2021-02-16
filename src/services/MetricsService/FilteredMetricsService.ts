@@ -3,7 +3,7 @@ import PQueue from 'p-queue';
 import {Platform} from 'react-native';
 import {Status} from 'screens/home/components/NotificationPermissionStatus';
 import {ExposureStatus, ExposureStatusType, SystemStatus} from 'services/ExposureNotificationService';
-import {DefaultFutureStorageService} from 'services/StorageService/FutureStorageService';
+import {DefaultStorageService} from 'services/StorageService/StorageService';
 import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 import {getHoursBetween, getCurrentDate, datesAreOnSameDay} from 'shared/date-fns';
 import {log} from 'shared/logging/config';
@@ -77,7 +77,7 @@ export class FilteredMetricsService {
     this.metricsService = DefaultMetricsService.initialize(
       new DefaultMetricsJsonSerializer(String(APP_VERSION_CODE), Platform.OS),
     );
-    this.stateStorage = new DefaultFilteredMetricsStateStorage(DefaultFutureStorageService.sharedInstance());
+    this.stateStorage = new DefaultFilteredMetricsStateStorage(DefaultStorageService.sharedInstance());
     this.serialPromiseQueue = new PQueue({concurrency: 1});
   }
 
@@ -211,7 +211,7 @@ export class FilteredMetricsService {
   }
 
   private async getRegion(): Promise<string> {
-    const regionOpt = await DefaultFutureStorageService.sharedInstance().retrieve(StorageDirectory.RegionKey);
+    const regionOpt = await DefaultStorageService.sharedInstance().retrieve(StorageDirectory.RegionKey);
     return regionOpt ? regionOpt : 'None';
   }
 }

@@ -20,7 +20,7 @@ import {BackendService} from 'services/BackendService';
 import {I18nProvider, RegionalProvider} from 'locale';
 import {ThemeProvider} from 'shared/theme';
 import {AccessibilityServiceProvider} from 'services/AccessibilityService';
-import {DefaultFutureStorageService} from 'services/StorageService/FutureStorageService';
+import {DefaultStorageService} from 'services/StorageService/StorageService';
 
 import regionContentDefault from './locale/translations/region.json';
 import {RegionContent, RegionContentResponse} from './shared/Region';
@@ -45,7 +45,7 @@ const appInit = async () => {
 const App = () => {
   const initialRegionContent: RegionContent = regionContentDefault as RegionContent;
   const backendService = useMemo(
-    () => new BackendService(RETRIEVE_URL, SUBMIT_URL, HMAC_KEY, DefaultFutureStorageService.sharedInstance()),
+    () => new BackendService(RETRIEVE_URL, SUBMIT_URL, HMAC_KEY, DefaultStorageService.sharedInstance()),
     [],
   );
 

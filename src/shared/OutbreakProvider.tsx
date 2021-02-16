@@ -3,14 +3,8 @@ import React, {useContext, useEffect, useMemo, useState} from 'react';
 import PushNotification from 'bridge/PushNotification';
 import {useI18nRef, I18n} from 'locale';
 import PQueue from 'p-queue';
-import {DefaultFutureStorageService, FutureStorageService} from 'services/StorageService/FutureStorageService';
+import {DefaultStorageService, StorageService} from 'services/StorageService/StorageService';
 import {StorageDirectory} from 'services/StorageService/StorageDirectory';
-<<<<<<< HEAD
-=======
-
-// eslint-disable-next-line @shopify/strict-component-boundaries
-import {DefaultSecureKeyValueStore, SecureKeyValueStore} from '../services/MetricsService/SecureKeyValueStorage';
->>>>>>> 7c2269cc (Replaced AsyncStorage (unsecure) solution with new StorageService)
 
 import {Observable} from './Observable';
 import {
@@ -41,21 +35,15 @@ export class OutbreakService implements OutbreakService {
   checkInHistory: Observable<CheckInData[]>;
   i18n: I18n;
 
-  private storageService: FutureStorageService;
+  private storageService: StorageService;
 
   private serialPromiseQueue: PQueue;
-
-  private storageService: FutureStorageService;
 
   constructor(i18n: I18n) {
     this.outbreakHistory = new Observable<OutbreakHistoryItem[]>([]);
     this.checkInHistory = new Observable<CheckInData[]>([]);
     this.i18n = i18n;
-    this.storageService = DefaultFutureStorageService.sharedInstance();
-<<<<<<< HEAD
-=======
-    this.secureKeyValueStore = new DefaultSecureKeyValueStore();
->>>>>>> 7c2269cc (Replaced AsyncStorage (unsecure) solution with new StorageService)
+    this.storageService = DefaultStorageService.sharedInstance();
     this.serialPromiseQueue = new PQueue({concurrency: 1});
   }
 

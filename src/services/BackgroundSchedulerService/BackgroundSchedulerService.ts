@@ -1,7 +1,7 @@
 import BackgroundFetch from 'react-native-background-fetch';
 import {AppRegistry, Platform} from 'react-native';
 import {HMAC_KEY, RETRIEVE_URL, SUBMIT_URL, TEST_MODE} from 'env';
-import {DefaultFutureStorageService} from 'services/StorageService/FutureStorageService';
+import {DefaultStorageService} from 'services/StorageService/StorageService';
 
 import ExposureCheckScheduler from '../../bridge/ExposureCheckScheduler';
 import {PeriodicWorkPayload} from '../../bridge/PushNotification';
@@ -123,13 +123,13 @@ const registerAndroidHeadlessPeriodicTask = (task: PeriodicTask) => {
         RETRIEVE_URL,
         SUBMIT_URL,
         HMAC_KEY,
-        DefaultFutureStorageService.sharedInstance(),
+        DefaultStorageService.sharedInstance(),
       );
       const i18n = await createBackgroundI18n();
       const exposureNotificationService = new ExposureNotificationService(
         backendService,
         i18n,
-        DefaultFutureStorageService.sharedInstance(),
+        DefaultStorageService.sharedInstance(),
         ExposureNotification,
       );
       registerPeriodicTask(async () => {

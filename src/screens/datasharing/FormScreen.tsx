@@ -6,7 +6,7 @@ import {Alert} from 'react-native';
 import {covidshield} from 'services/BackendService/covidshield';
 import {xhrError} from 'shared/fetch';
 import {useNavigation} from '@react-navigation/native';
-import {DefaultFutureStorageService} from 'services/StorageService/FutureStorageService';
+import {DefaultStorageService} from 'services/StorageService/StorageService';
 import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 import {BaseDataSharingView, StepXofY} from './components';
@@ -21,7 +21,7 @@ export const FormScreen = () => {
   const [loading, setLoading] = useState(false);
   const {startSubmission} = useReportDiagnosis();
   const onSuccess = useCallback(() => {
-    DefaultFutureStorageService.sharedInstance().save(StorageDirectory.InitialTekUploadCompleteKey, 'false');
+    DefaultStorageService.sharedInstance().save(StorageDirectory.InitialTekUploadCompleteKey, 'false');
     navigation.navigate('Step2');
   }, [navigation]);
 

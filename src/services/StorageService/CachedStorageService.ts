@@ -3,7 +3,7 @@ import {ForceScreen} from 'shared/ForceScreen';
 import {Region} from 'shared/Region';
 import {getSystemLocale} from 'locale/utils';
 
-import {DefaultFutureStorageService, FutureStorageService} from './FutureStorageService';
+import {DefaultStorageService, StorageService} from './StorageService';
 import {StorageDirectory} from './StorageDirectory';
 
 export class CachedStorageService {
@@ -16,9 +16,9 @@ export class CachedStorageService {
   userStopped: Observable<boolean>;
   hasViewedQrInstructions: Observable<boolean>;
 
-  private storageService: FutureStorageService;
+  private storageService: StorageService;
 
-  constructor(storageService: FutureStorageService) {
+  constructor(storageService: StorageService) {
     this.isOnboarding = new Observable<boolean>(true);
     this.locale = new Observable<string>(getSystemLocale());
     this.region = new Observable<Region | undefined>(undefined);
@@ -115,7 +115,7 @@ export class CachedStorageService {
 }
 
 export const createCachedStorageService = async (
-  storageService: FutureStorageService = DefaultFutureStorageService.sharedInstance(),
+  storageService: StorageService = DefaultStorageService.sharedInstance(),
 ) => {
   const cachedStorageService = new CachedStorageService(storageService);
   await cachedStorageService.init();

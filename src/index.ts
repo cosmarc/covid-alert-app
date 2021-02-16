@@ -10,7 +10,7 @@ import {BackendService} from 'services/BackendService';
 import {BackgroundScheduler} from 'services/BackgroundSchedulerService';
 import {ExposureNotificationService} from 'services/ExposureNotificationService';
 import {createBackgroundI18n} from 'locale';
-import {DefaultFutureStorageService} from 'services/StorageService/FutureStorageService';
+import {DefaultStorageService} from 'services/StorageService/StorageService';
 
 import {name as appName} from '../app.json';
 
@@ -24,13 +24,13 @@ if (Platform.OS === 'android') {
       RETRIEVE_URL,
       SUBMIT_URL,
       HMAC_KEY,
-      DefaultFutureStorageService.sharedInstance(),
+      DefaultStorageService.sharedInstance(),
     );
     const i18n = await createBackgroundI18n();
     const exposureNotificationService = new ExposureNotificationService(
       backendService,
       i18n,
-      DefaultFutureStorageService.sharedInstance(),
+      DefaultStorageService.sharedInstance(),
       ExposureNotification,
     );
     await exposureNotificationService.updateExposureStatusInBackground();
@@ -41,13 +41,13 @@ if (Platform.OS === 'android') {
       RETRIEVE_URL,
       SUBMIT_URL,
       HMAC_KEY,
-      DefaultFutureStorageService.sharedInstance(),
+      DefaultStorageService.sharedInstance(),
     );
     const i18n = await createBackgroundI18n();
     const exposureNotificationService = new ExposureNotificationService(
       backendService,
       i18n,
-      DefaultFutureStorageService.sharedInstance(),
+      DefaultStorageService.sharedInstance(),
       ExposureNotification,
     );
     if (await exposureNotificationService.shouldPerformExposureCheck()) {

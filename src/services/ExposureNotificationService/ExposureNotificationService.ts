@@ -29,7 +29,7 @@ import {checkNotifications} from 'react-native-permissions';
 import {Status} from 'screens/home/components/NotificationPermissionStatus';
 import {PollNotifications} from 'services/PollNotificationService';
 import {OutbreakService} from 'shared/OutbreakProvider';
-import {FutureStorageService} from 'services/StorageService/FutureStorageService';
+import {StorageService} from 'services/StorageService/StorageService';
 import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 import {BackendInterface, SubmissionKeySet} from '../BackendService';
@@ -108,12 +108,12 @@ export class ExposureNotificationService {
   private backendInterface: BackendInterface;
 
   private i18n: I18n;
-  private storageService: FutureStorageService;
+  private storageService: StorageService;
 
   constructor(
     backendInterface: BackendInterface,
     i18n: I18n,
-    storageService: FutureStorageService,
+    storageService: StorageService,
     exposureNotification: typeof ExposureNotification,
   ) {
     this.i18n = i18n;

@@ -1,4 +1,4 @@
-import {FutureStorageService} from 'services/StorageService/FutureStorageService';
+import {StorageService} from 'services/StorageService/StorageService';
 import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 export interface FilteredMetricsStateStorage {
@@ -14,9 +14,9 @@ export interface FilteredMetricsStateStorage {
 }
 
 export class DefaultFilteredMetricsStateStorage implements FilteredMetricsStateStorage {
-  private storageService: FutureStorageService;
+  private storageService: StorageService;
 
-  constructor(storageService: FutureStorageService) {
+  constructor(storageService: StorageService) {
     this.storageService = storageService;
   }
 

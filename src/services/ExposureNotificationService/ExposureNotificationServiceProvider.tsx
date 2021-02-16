@@ -7,7 +7,7 @@ import {ContagiousDateInfo} from 'shared/DataSharing';
 import {useCachedStorage} from 'services/StorageService';
 import {log} from 'shared/logging/config';
 import {EventTypeMetric, FilteredMetricsService} from 'services/MetricsService/FilteredMetricsService';
-import {DefaultFutureStorageService, FutureStorageService} from 'services/StorageService/FutureStorageService';
+import {DefaultStorageService, StorageService} from 'services/StorageService/StorageService';
 
 import {BackendInterface} from '../BackendService';
 import {BackgroundScheduler} from '../BackgroundSchedulerService';
@@ -20,7 +20,7 @@ export interface ExposureNotificationServiceProviderProps {
   backendInterface: BackendInterface;
   backgroundScheduler?: typeof BackgroundScheduler;
   exposureNotification?: typeof ExposureNotification;
-  storageService?: FutureStorageService;
+  storageService?: StorageService;
   children?: React.ReactElement;
 }
 
@@ -37,7 +37,7 @@ export const ExposureNotificationServiceProvider = ({
       new ExposureNotificationService(
         backendInterface,
         i18n,
-        DefaultFutureStorageService.sharedInstance(),
+        DefaultStorageService.sharedInstance(),
         exposureNotification || ExposureNotification,
       ),
     [backendInterface, exposureNotification, i18n],

@@ -2,7 +2,7 @@ import {METRICS_API_KEY, METRICS_URL, TEST_MODE} from 'env';
 import PQueue from 'p-queue';
 import {log} from 'shared/logging/config';
 import {getCurrentDate, minutesBetween} from 'shared/date-fns';
-import {DefaultFutureStorageService, FutureStorageService} from 'services/StorageService/FutureStorageService';
+import {DefaultStorageService, StorageService} from 'services/StorageService/StorageService';
 import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
 import {Metric} from './Metric';
@@ -31,7 +31,7 @@ enum TriggerPushResult {
 export class DefaultMetricsService implements MetricsService {
   static initialize(metricsJsonSerializer: MetricsJsonSerializer): MetricsService {
     if (METRICS_URL) {
-      const storageService = DefaultFutureStorageService.sharedInstance();
+      const storageService = DefaultStorageService.sharedInstance();
       const metricsStorage = new DefaultMetricsStorage(storageService);
       const metricsPublisher = new DefaultMetricsPublisher(metricsStorage);
       const metricsProvider = new DefaultMetricsProvider(metricsStorage);
@@ -49,7 +49,7 @@ export class DefaultMetricsService implements MetricsService {
     }
   }
 
-  private storageService: FutureStorageService;
+  private storageService: StorageService;
   private metricsPublisher: MetricsPublisher;
   private metricsProvider: MetricsProvider;
   private metricsStorageCleaner: MetricsStorageCleaner;
@@ -59,7 +59,7 @@ export class DefaultMetricsService implements MetricsService {
   private serialPromiseQueue: PQueue;
 
   private constructor(
-    storageService: FutureStorageService,
+    storageService: StorageService,
     metricsPublisher: MetricsPublisher,
     metricsProvider: MetricsProvider,
     metricsStorageCleaner: MetricsStorageCleaner,
