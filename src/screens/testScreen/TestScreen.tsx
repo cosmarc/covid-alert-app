@@ -4,7 +4,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {useI18n} from 'locale';
 import PushNotification from 'bridge/PushNotification';
 import {Box, Button, LanguageToggle, Text, Toolbar} from 'components';
-import {useStorage} from 'services/StorageService';
+import {useCachedStorage} from 'services/StorageService';
 import {
   ExposureStatusType,
   useExposureNotificationService,
@@ -26,7 +26,7 @@ import {Item} from './views/Item';
 import {Section} from './views/Section';
 
 const ScreenRadioSelector = () => {
-  const {forceScreen, setForceScreen} = useStorage();
+  const {forceScreen, setForceScreen} = useCachedStorage();
   const forceScreenOnPress = (value: string) => {
     if (Object.values(ForceScreen).includes(value as ForceScreen)) {
       setForceScreen(value as ForceScreen);
@@ -66,7 +66,7 @@ const ScreenRadioSelector = () => {
 };
 
 const SkipAllSetRadioSelector = () => {
-  const {skipAllSet, setSkipAllSet} = useStorage();
+  const {skipAllSet, setSkipAllSet} = useCachedStorage();
   const screenData = [
     {displayName: 'False', value: 'false'},
     {displayName: 'True', value: 'true'},
@@ -102,7 +102,7 @@ const Content = () => {
   const i18n = useI18n();
   const navigation = useNavigation();
 
-  const {reset} = useStorage();
+  const {reset} = useCachedStorage();
   const {checkForOutbreaks, clearOutbreakHistory} = useOutbreakService();
 
   const onClearOutbreak = useCallback(async () => {

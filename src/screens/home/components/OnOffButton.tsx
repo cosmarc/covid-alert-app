@@ -9,13 +9,13 @@ import {
 import NativePushNotification from 'bridge/PushNotification';
 import {useI18n} from 'locale';
 import {BottomSheetBehavior} from 'components';
-import {useStorage} from 'services/StorageService';
+import {useCachedStorage} from 'services/StorageService';
 
 import {InfoShareItem} from './InfoShareItem';
 
 export const OnOffButton = ({bottomSheetBehavior}: {bottomSheetBehavior: BottomSheetBehavior}) => {
   const i18n = useI18n();
-  const {userStopped} = useStorage();
+  const {userStopped} = useCachedStorage();
   const startExposureNotificationService = useStartExposureNotificationService();
   const stopExposureNotificationService = useStopExposureNotificationService();
 

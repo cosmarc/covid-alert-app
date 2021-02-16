@@ -33,6 +33,31 @@ export class StorageDirectory {
     storageType: StorageType.Unsecure,
   };
 
+  static readonly IsOnboardedKey: KeyDefinition = {
+    keyIdentifier: 'IsOnboarded',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly ForceScreenKey: KeyDefinition = {
+    keyIdentifier: 'ForceScreen',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly SkipAllSetKey: KeyDefinition = {
+    keyIdentifier: 'SkipAllSet',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly UserStoppedKey: KeyDefinition = {
+    keyIdentifier: 'UserStopped',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly HasViewedQRInstructionsKey: KeyDefinition = {
+    keyIdentifier: 'HasViewedQRInstructions',
+    storageType: StorageType.Unsecure,
+  };
+
   static readonly InitialTekUploadCompleteKey: KeyDefinition = {
     keyIdentifier: 'INITIAL_TEK_UPLOAD_COMPLETE',
     storageType: StorageType.Unsecure,

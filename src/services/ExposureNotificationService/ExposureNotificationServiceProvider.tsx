@@ -4,7 +4,7 @@ import ExposureNotification, {Status as SystemStatus} from 'bridge/ExposureNotif
 import {AppState, AppStateStatus, Platform} from 'react-native';
 import SystemSetting from 'react-native-system-setting';
 import {ContagiousDateInfo} from 'shared/DataSharing';
-import {useStorage} from 'services/StorageService';
+import {useCachedStorage} from 'services/StorageService';
 import {log} from 'shared/logging/config';
 import {EventTypeMetric, FilteredMetricsService} from 'services/MetricsService/FilteredMetricsService';
 import {DefaultFutureStorageService, FutureStorageService} from 'services/StorageService/FutureStorageService';
@@ -12,7 +12,7 @@ import {DefaultFutureStorageService, FutureStorageService} from 'services/Storag
 import {BackendInterface} from '../BackendService';
 import {BackgroundScheduler} from '../BackgroundSchedulerService';
 
-import {ExposureNotificationService, ExposureStatus, PersistencyProvider} from './ExposureNotificationService';
+import {ExposureNotificationService, ExposureStatus} from './ExposureNotificationService';
 
 const ExposureNotificationServiceContext = createContext<ExposureNotificationService | undefined>(undefined);
 
@@ -31,7 +31,7 @@ export const ExposureNotificationServiceProvider = ({
   children,
 }: ExposureNotificationServiceProviderProps) => {
   const i18n = useI18nRef();
-  const {setUserStopped} = useStorage();
+  const {setUserStopped} = useCachedStorage();
   const exposureNotificationService = useMemo(
     () =>
       new ExposureNotificationService(
@@ -90,7 +90,7 @@ export function useExposureNotificationService() {
 
 export function useStartExposureNotificationService(): () => Promise<boolean | {success: boolean; error?: string}> {
   const exposureNotificationService = useExposureNotificationService();
-  const {setUserStopped, onboardedDatetime} = useStorage();
+  const {setUserStopped, onboardedDatetime} = useCachedStorage();
 
   return useCallback(async () => {
     const start = await exposureNotificationService.start();
@@ -123,7 +123,7 @@ export function useStartExposureNotificationService(): () => Promise<boolean | {
 
 export function useStopExposureNotificationService(): () => Promise<boolean> {
   const exposureNotificationService = useExposureNotificationService();
-  const {setUserStopped, onboardedDatetime} = useStorage();
+  const {setUserStopped, onboardedDatetime} = useCachedStorage();
   return useCallback(async () => {
     setUserStopped(true);
     const stopped = await exposureNotificationService.stop();

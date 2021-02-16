@@ -1,2 +1,2 @@
-export * from './StorageService';
-export * from './StorageServiceProvider';
+export * from './CachedStorageService';
+export * from './CachedStorageServiceProvider';

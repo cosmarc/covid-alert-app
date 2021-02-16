@@ -1,7 +1,7 @@
 import React from 'react';
 import {Text, TextMultiline} from 'components';
 import {useI18n} from 'locale';
-import {useStorage} from 'services/StorageService';
+import {useCachedStorage} from 'services/StorageService';
 import {hoursFromNow} from 'shared/date-fns';
 import {useAccessibilityAutoFocus} from 'shared/useAccessibilityAutoFocus';
 
@@ -10,7 +10,7 @@ import {AllSetView} from '../components/AllSetView';
 
 export const NoExposureUncoveredRegionView = ({isBottomSheetExpanded}: {isBottomSheetExpanded: boolean}) => {
   const i18n = useI18n();
-  const {onboardedDatetime, skipAllSet} = useStorage();
+  const {onboardedDatetime, skipAllSet} = useCachedStorage();
   const autoFocusRef = useAccessibilityAutoFocus(!isBottomSheetExpanded);
 
   if (!skipAllSet && onboardedDatetime && hoursFromNow(onboardedDatetime) < 24) {

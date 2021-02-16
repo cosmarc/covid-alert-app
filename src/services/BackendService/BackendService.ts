@@ -15,8 +15,7 @@ import JsonSchemaValidator from 'shared/JsonSchemaValidator';
 import {FutureStorageService} from 'services/StorageService/FutureStorageService';
 import {StorageDirectory} from 'services/StorageService/StorageDirectory';
 
-import {Observable} from '../../shared/Observable';
-import {Region, RegionContentResponse} from '../../shared/Region';
+import {RegionContentResponse} from '../../shared/Region';
 import {log} from '../../shared/logging/config';
 
 import {covidshield} from './covidshield';
@@ -37,21 +36,13 @@ export class BackendService implements BackendInterface {
   retrieveUrl: string;
   submitUrl: string;
   hmacKey: string;
-  region: Observable<Region | undefined> | undefined;
 
   private storageService: FutureStorageService;
 
-  constructor(
-    retrieveUrl: string,
-    submitUrl: string,
-    hmacKey: string,
-    region: Observable<Region | undefined> | undefined,
-    storageService: FutureStorageService,
-  ) {
+  constructor(retrieveUrl: string, submitUrl: string, hmacKey: string, storageService: FutureStorageService) {
     this.retrieveUrl = retrieveUrl;
     this.submitUrl = submitUrl;
     this.hmacKey = hmacKey;
-    this.region = region;
     this.storageService = storageService;
   }
 

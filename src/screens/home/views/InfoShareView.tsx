@@ -4,7 +4,7 @@ import {BottomSheetBehavior, Box, Text} from 'components';
 import {useNavigation} from '@react-navigation/native';
 import {useI18n, useRegionalI18n} from 'locale';
 import {captureException} from 'shared/log';
-import {useStorage} from 'services/StorageService';
+import {useCachedStorage} from 'services/StorageService';
 import {getExposedHelpMenuURL} from 'shared/RegionLogic';
 import {APP_VERSION_NAME, APP_VERSION_CODE} from 'env';
 
@@ -13,7 +13,7 @@ import {InfoShareItem} from '../components/InfoShareItem';
 
 export const InfoShareView = ({bottomSheetBehavior}: {bottomSheetBehavior: BottomSheetBehavior}) => {
   const i18n = useI18n();
-  const {region} = useStorage();
+  const {region} = useCachedStorage();
   const regionalI18n = useRegionalI18n();
   const navigation = useNavigation();
 

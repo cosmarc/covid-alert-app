@@ -1,7 +1,7 @@
 import React from 'react';
 import {Text, TextMultiline, RoundedBox} from 'components';
 import {useI18n} from 'locale';
-import {useStorage} from 'services/StorageService';
+import {useCachedStorage} from 'services/StorageService';
 import {hoursFromNow} from 'shared/date-fns';
 import {useAccessibilityAutoFocus} from 'shared/useAccessibilityAutoFocus';
 import {Platform} from 'react-native';
@@ -37,7 +37,7 @@ const TextContent = ({isBottomSheetExpanded}: {isBottomSheetExpanded: boolean}) 
 
 export const NoExposureCoveredRegionView = ({isBottomSheetExpanded}: {isBottomSheetExpanded: boolean}) => {
   const i18n = useI18n();
-  const {onboardedDatetime, skipAllSet} = useStorage();
+  const {onboardedDatetime, skipAllSet} = useCachedStorage();
 
   if (!skipAllSet && onboardedDatetime && hoursFromNow(onboardedDatetime) < 24) {
     return (

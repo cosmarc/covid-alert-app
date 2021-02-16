@@ -13,7 +13,7 @@ import {
   useExposureNotificationSystemStatusAutomaticUpdater,
   useSystemStatus,
 } from 'services/ExposureNotificationService';
-import {useStorage} from 'services/StorageService';
+import {useCachedStorage} from 'services/StorageService';
 import {RegionCase} from 'shared/Region';
 import {getRegionCase} from 'shared/RegionLogic';
 import {usePrevious} from 'shared/usePrevious';
@@ -60,7 +60,7 @@ const UploadShareView = ({hasShared, isBottomSheetExpanded}: {hasShared?: boolea
 };
 
 const Content = ({isBottomSheetExpanded}: ContentProps) => {
-  const {region, userStopped} = useStorage();
+  const {region, userStopped} = useCachedStorage();
 
   const regionalI18n = useRegionalI18n();
   const regionCase = getRegionCase(region, regionalI18n.activeRegions);
@@ -86,7 +86,7 @@ const Content = ({isBottomSheetExpanded}: ContentProps) => {
   };
 
   // this is for the test menu
-  const {forceScreen} = useStorage();
+  const {forceScreen} = useCachedStorage();
   if (TEST_MODE) {
     switch (forceScreen) {
       case ForceScreen.NoExposureView:
@@ -194,7 +194,7 @@ const ExpandedContent = (bottomSheetBehavior: BottomSheetBehavior) => {
 export const HomeScreen = () => {
   const {checkForOutbreaks} = useOutbreakService();
   const navigation = useNavigation();
-  const {userStopped} = useStorage();
+  const {userStopped} = useCachedStorage();
 
   useEffect(() => {
     if (__DEV__ && TEST_MODE) {

@@ -14,19 +14,16 @@ import {DefaultFutureStorageService} from 'services/StorageService/FutureStorage
 
 import {name as appName} from '../app.json';
 
-import {createStorageService} from './services/StorageService';
 import App from './App';
 
 AppRegistry.registerComponent(appName, () => App);
 
 if (Platform.OS === 'android') {
   BackgroundScheduler.registerAndroidHeadlessPeriodicTask(async () => {
-    const storageService = await createStorageService();
     const backendService = new BackendService(
       RETRIEVE_URL,
       SUBMIT_URL,
       HMAC_KEY,
-      storageService?.region,
       DefaultFutureStorageService.sharedInstance(),
     );
     const i18n = await createBackgroundI18n();
@@ -40,12 +37,10 @@ if (Platform.OS === 'android') {
   });
 
   BackgroundScheduler.registerAndroidHeadlessExposureCheckPeriodicTask(async () => {
-    const storageService = await createStorageService();
     const backendService = new BackendService(
       RETRIEVE_URL,
       SUBMIT_URL,
       HMAC_KEY,
-      storageService?.region,
       DefaultFutureStorageService.sharedInstance(),
     );
     const i18n = await createBackgroundI18n();
