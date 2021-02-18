@@ -6,9 +6,8 @@ import {
   Infectiousness,
   ReportType,
   ScanInstance,
-} from '../../bridge/ExposureNotification';
-
-import {ExposureNotificationService} from './ExposureNotificationService';
+} from '../../../bridge/ExposureNotification';
+import {ExposureNotificationService} from '../ExposureNotificationService';
 
 jest.mock('react-native-system-setting', () => {
   return {
@@ -32,12 +31,12 @@ jest.mock('react-native-permissions', () => {
   return {checkNotifications: jest.fn(), requestNotifications: jest.fn()};
 });
 
-jest.mock('../../bridge/CovidShield', () => ({
+jest.mock('../../../bridge/CovidShield', () => ({
   getRandomBytes: jest.fn().mockResolvedValue(new Uint8Array(32)),
   downloadDiagnosisKeysFile: jest.fn(),
 }));
 
-jest.mock('../../bridge/ExposureCheckScheduler', () => ({
+jest.mock('../../../bridge/ExposureCheckScheduler', () => ({
   scheduleExposureCheck: jest.fn(),
   executeExposureCheck: jest.fn(),
 }));
@@ -55,7 +54,7 @@ const storage: any = {
   getItem: jest.fn().mockResolvedValue(null),
   setItem: jest.fn().mockResolvedValueOnce(undefined),
 };
-const storageService: FutureStorageService = {
+const storageService: StorageService = {
   retrieve: jest.fn().mockResolvedValue(null),
   save: jest.fn().mockResolvedValueOnce(undefined),
   delete: jest.fn().mockResolvedValue(null),

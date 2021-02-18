@@ -3,22 +3,19 @@
 import {when, resetAllWhenMocks} from 'jest-when';
 import {Platform} from 'react-native';
 
-import {periodSinceEpoch} from '../../shared/date-fns';
-import {ExposureSummary} from '../../bridge/ExposureNotification';
-import PushNotification from '../../bridge/PushNotification';
-import {Key} from '../StorageService';
-import {PERIODIC_TASK_INTERVAL_IN_MINUTES} from '../BackgroundSchedulerService';
-import {FutureStorageService} from '../StorageService/FutureStorageService';
-import {StorageDirectory} from '../StorageService/StorageDirectory';
-
+import {periodSinceEpoch} from '../../../shared/date-fns';
+import {ExposureSummary} from '../../../bridge/ExposureNotification';
+import PushNotification from '../../../bridge/PushNotification';
+import {PERIODIC_TASK_INTERVAL_IN_MINUTES} from '../../BackgroundSchedulerService';
+import {StorageService} from '../../StorageService/StorageService';
+import {StorageDirectory} from '../../StorageService/StorageDirectory';
 import {
   ExposureNotificationService,
   ExposureStatus,
   ExposureStatusType,
-  EXPOSURE_STATUS,
   HOURS_PER_PERIOD,
   SystemStatus,
-} from './ExposureNotificationService';
+} from '../ExposureNotificationService';
 
 jest.mock('react-native-permissions', () => {
   return {checkNotifications: jest.fn(), requestNotifications: jest.fn()};
@@ -30,7 +27,7 @@ jest.mock('react-native-zip-archive', () => ({
   unzip: jest.fn(),
 }));
 
-jest.mock('../../bridge/CovidShield', () => ({
+jest.mock('../../../bridge/CovidShield', () => ({
   getRandomBytes: jest.fn().mockResolvedValue(new Uint8Array(32)),
   downloadDiagnosisKeysFile: jest.fn(x => ''),
 }));
@@ -42,7 +39,7 @@ jest.mock('react-native-background-fetch', () => {
   };
 });
 
-jest.mock('../../bridge/PushNotification', () => ({
+jest.mock('../../../bridge/PushNotification', () => ({
   ...jest.requireActual('bridge/PushNotification'),
   presentLocalNotification: jest.fn(),
 }));
@@ -54,7 +51,7 @@ jest.mock('react-native-system-setting', () => {
   };
 });
 
-jest.mock('../../bridge/ExposureCheckScheduler', () => ({
+jest.mock('../../../bridge/ExposureCheckScheduler', () => ({
   scheduleExposureCheck: jest.fn(),
   executeExposureCheck: jest.fn(),
 }));
@@ -68,14 +65,10 @@ const server: any = {
 const i18n: any = {
   translate: jest.fn().mockReturnValue('foo'),
 };
-const storage: any = {
-  getItem: jest.fn().mockResolvedValue(null),
-  setItem: jest.fn().mockResolvedValueOnce(undefined),
-};
-const storageService: FutureStorageService = {
+const storageService: StorageService = {
   retrieve: jest.fn().mockResolvedValue(null),
   save: jest.fn().mockResolvedValueOnce(undefined),
-  delete: jest.fn().mockResolvedValue(null),
+  delete: jest.fn(),
 };
 const bridge: any = {
   detectExposure: jest.fn().mockResolvedValue({matchedKeyCount: 0}),
@@ -169,11 +162,11 @@ describe('ExposureNotificationService', () => {
   };
 
   beforeEach(() => {
-    service = new ExposureNotificationService(server, i18n, storage, storageService, bridge);
+    service = new ExposureNotificationService(server, i18n, storageService, bridge);
     Platform.OS = 'ios';
     service.systemStatus.set(SystemStatus.Active);
-    when(storage.getItem)
-      .calledWith(Key.OnboardedDatetime)
+    when(storageService.retrieve)
+      .calledWith(StorageDirectory.OnboardedDatetimeKey)
       .mockResolvedValue(today.getTime());
 
     dateSpy.mockImplementation((...args: any[]) => (args.length > 0 ? new OriginalDate(...args) : today));
@@ -432,8 +425,7 @@ describe('ExposureNotificationService', () => {
     expect(server.getExposureConfiguration).toHaveBeenCalledTimes(1);
   });
 
-  // eslint-disable-next-line jest/no-disabled-tests
-  it.skip('stores last update timestamp', async () => {
+  it('stores last update timestamp', async () => {
     const currentDatetime = new OriginalDate('2020-05-19T07:10:00+0000');
     dateSpy.mockImplementation((args: any) => {
       if (args === undefined) return currentDatetime;
@@ -453,8 +445,8 @@ describe('ExposureNotificationService', () => {
 
     await service.updateExposureStatus();
 
-    expect(storage.setItem).toHaveBeenCalledWith(
-      EXPOSURE_STATUS,
+    expect(storageService.save).toHaveBeenCalledWith(
+      StorageDirectory.ExposureNotificationServiceExposureStatusKey,
       expect.jsonStringContaining({
         lastChecked: {
           timestamp: currentDatetime.getTime(),
@@ -484,8 +476,8 @@ describe('ExposureNotificationService', () => {
   });
 
   it('restores "diagnosed" status from storage', async () => {
-    when(storage.getItem)
-      .calledWith(EXPOSURE_STATUS)
+    when(storageService.retrieve)
+      .calledWith(StorageDirectory.ExposureNotificationServiceExposureStatusKey)
       .mockResolvedValueOnce(
         JSON.stringify({
           type: ExposureStatusType.Diagnosed,
@@ -529,8 +521,8 @@ describe('ExposureNotificationService', () => {
       .mockResolvedValueOnce('{}');
     await service.fetchAndSubmitKeys({dateType: 'noDate', date: null});
 
-    expect(storage.setItem).toHaveBeenCalledWith(
-      EXPOSURE_STATUS,
+    expect(storageService.save).toHaveBeenCalledWith(
+      StorageDirectory.ExposureNotificationServiceExposureStatusKey,
       expect.jsonStringContaining({
         submissionLastCompletedAt: new OriginalDate(currentDateString).getTime(),
       }),
@@ -935,8 +927,8 @@ describe('ExposureNotificationService', () => {
 
   describe('shouldPerformExposureCheck', () => {
     it('returns false if not onboarded', async () => {
-      when(storage.getItem)
-        .calledWith(Key.OnboardedDatetime)
+      when(storageService.retrieve)
+        .calledWith(StorageDirectory.OnboardedDatetimeKey)
         .mockResolvedValueOnce(false);
 
       const shouldPerformExposureCheck = await service.shouldPerformExposureCheck();

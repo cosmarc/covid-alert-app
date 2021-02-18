@@ -1,20 +1,21 @@
+/* eslint-disable @shopify/strict-component-boundaries */
 /* eslint-disable import/namespace */
 import crypto from 'crypto';
 
 import nacl from 'tweetnacl';
-import AsyncStorage from '@react-native-community/async-storage';
 
-import * as envs from '../../env';
-import {ContagiousDateInfo, ContagiousDateType} from '../../shared/DataSharing';
-import * as DateFns from '../../shared/date-fns';
-import {blobFetch} from '../../shared/fetch';
-import {captureMessage} from '../../shared/log';
-import JsonSchemaValidator from '../../shared/JsonSchemaValidator';
-import {getRandomBytes, downloadDiagnosisKeysFile} from '../../bridge/CovidShield';
-import {TemporaryExposureKey} from '../../bridge/ExposureNotification';
-
-import {BackendService} from './BackendService';
-import {covidshield} from './covidshield';
+import * as envs from '../../../env';
+import {ContagiousDateInfo, ContagiousDateType} from '../../../shared/DataSharing';
+import * as DateFns from '../../../shared/date-fns';
+import {blobFetch} from '../../../shared/fetch';
+import {captureMessage} from '../../../shared/log';
+import JsonSchemaValidator from '../../../shared/JsonSchemaValidator';
+import {getRandomBytes, downloadDiagnosisKeysFile} from '../../../bridge/CovidShield';
+import {TemporaryExposureKey} from '../../../bridge/ExposureNotification';
+import {BackendService} from '../BackendService';
+import {covidshield} from '../covidshield';
+import {StorageDirectory} from '../../StorageService/StorageDirectory';
+import {StorageService} from '../../StorageService/StorageService';
 
 jest.mock('tweetnacl', () => ({
   __esModule: true,
@@ -24,7 +25,7 @@ jest.mock('tweetnacl', () => ({
   },
 }));
 
-jest.mock('./covidshield', () => ({
+jest.mock('../covidshield', () => ({
   covidshield: {
     Upload: {
       create: jest.fn(),
@@ -56,19 +57,25 @@ jest.mock('./covidshield', () => ({
   },
 }));
 
-jest.mock('../../bridge/CovidShield', () => ({
+jest.mock('../../../bridge/CovidShield', () => ({
   getRandomBytes: jest.fn().mockResolvedValue(new Uint8Array(32)),
   downloadDiagnosisKeysFile: jest.fn(),
 }));
 
-jest.mock('../../shared/fetch', () => ({
+jest.mock('../../../shared/fetch', () => ({
   blobFetch: jest.fn(),
 }));
 
-jest.mock('../../shared/log', () => ({
+jest.mock('../../../shared/log', () => ({
   captureException: jest.fn(),
   captureMessage: jest.fn(),
 }));
+
+const storageService: StorageService = {
+  save: jest.fn(),
+  retrieve: jest.fn(),
+  delete: jest.fn(),
+};
 
 /**
  * Utils for comparing jsonString
@@ -122,7 +129,7 @@ describe('BackendService', () => {
 
   describe('reportDiagnosisKeys', () => {
     it('returns last 28 keys if there is more than 28', async () => {
-      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', undefined);
+      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
       const keys = generateRandomKeys(30);
       await backendService.reportDiagnosisKeys(
         {
@@ -149,7 +156,7 @@ describe('BackendService', () => {
     });
 
     it('throws if random generator is not available', async () => {
-      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', undefined);
+      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
       const keys = generateRandomKeys(20);
       const submissionKeys = {
         clientPrivateKey: 'mock',
@@ -164,7 +171,7 @@ describe('BackendService', () => {
     });
 
     it('throws if backend returns an error', async () => {
-      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', undefined);
+      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
       const keys = generateRandomKeys(20);
 
       blobFetch.mockImplementationOnce(() => ({
@@ -190,7 +197,7 @@ describe('BackendService', () => {
     });
 
     it('throws a code unknown error if decode does not resolve', async () => {
-      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', undefined);
+      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
       const keys = generateRandomKeys(20);
 
       blobFetch.mockImplementationOnce(() => ({
@@ -214,7 +221,7 @@ describe('BackendService', () => {
     });
 
     it('returns last 3 keys if symptom onset is today, saves last  uploaded TEK start time', async () => {
-      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', undefined);
+      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
       const keys = generateRandomKeys(30);
       await backendService.reportDiagnosisKeys(
         {
@@ -239,16 +246,16 @@ describe('BackendService', () => {
         expect(covidshield.TemporaryExposureKey.create).toHaveBeenCalledWith(expect.objectContaining(value));
       });
 
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-        'LAST_UPLOADED_TEK_START_TIME',
+      expect(storageService.save).toHaveBeenCalledWith(
+        StorageDirectory.LastUploadedTekStartTimeKey,
         sortedKeys[0].rollingStartIntervalNumber.toString(),
       );
     });
 
     it('does not upload TEKs with timestamps before the LAST_UPLOADED_TEK_START_TIME, saves new most recent time', async () => {
-      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', undefined);
+      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
       const keys = generateRandomKeys(10);
-      AsyncStorage.getItem.mockReturnValueOnce(keys[1].rollingStartIntervalNumber.toString());
+      storageService.retrieve.mockReturnValueOnce(keys[1].rollingStartIntervalNumber.toString());
 
       await backendService.reportDiagnosisKeys(
         {
@@ -265,8 +272,8 @@ describe('BackendService', () => {
         }),
       );
 
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-        'LAST_UPLOADED_TEK_START_TIME',
+      expect(storageService.save).toHaveBeenCalledWith(
+        StorageDirectory.LastUploadedTekStartTimeKey,
         keys[0].rollingStartIntervalNumber.toString(),
       );
     });
@@ -284,7 +291,7 @@ describe('BackendService', () => {
     });
 
     it('returns keys file for set period', async () => {
-      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', undefined);
+      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
 
       await backendService.retrieveDiagnosisKeys(18457);
 
@@ -294,7 +301,7 @@ describe('BackendService', () => {
     });
 
     it('returns keys file for 14 days if period is 0', async () => {
-      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', undefined);
+      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
 
       await backendService.retrieveDiagnosisKeys(0);
 
@@ -308,7 +315,7 @@ describe('BackendService', () => {
     let backendService;
 
     beforeEach(() => {
-      backendService = new BackendService('http://localhost', 'https://localhost', 'mock', 'region');
+      backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
       const bytes = new Uint8Array(34);
       nacl.box.keyPair = () => ({publicKey: bytes, secretKey: bytes});
       covidshield.KeyClaimResponse.decode.mockImplementation(() => ({
@@ -350,7 +357,7 @@ describe('BackendService', () => {
 
   describe('getExposureConfiguration', () => {
     it('retrieves configuration from backend', async () => {
-      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', 'region');
+      const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
 
       // eslint-disable-next-line no-global-assign
       fetch = jest.fn(() => Promise.resolve({json: () => ({})}));
@@ -362,7 +369,7 @@ describe('BackendService', () => {
   });
 
   describe('getRegionContentUrl', () => {
-    const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', 'region');
+    const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
 
     it('returns REGION_JSON_URL if it is not false or undefined', () => {
       envs.REGION_JSON_URL = 'foo';
@@ -381,7 +388,7 @@ describe('BackendService', () => {
   });
 
   describe('isValidRegionContent', () => {
-    const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', 'region');
+    const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
 
     it('returns true if content.status is 200 and payload is valid', () => {
       jest.spyOn(JsonSchemaValidator.prototype, 'validateJson').mockImplementation(() => true);
@@ -423,26 +430,25 @@ describe('BackendService', () => {
   });
 
   describe('getStoredRegionContent', () => {
-    const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', 'region');
+    const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
 
     it('returns {status: 400, payload: null} if there is not storage item', async () => {
       const result = await backendService.getStoredRegionContent();
-      expect(AsyncStorage.getItem).toHaveBeenCalledWith('http://localhost/exposure-configuration/region.json');
+      expect(storageService.retrieve).toHaveBeenCalledWith(StorageDirectory.RegionContentKey);
       expect(result).toStrictEqual({status: 400, payload: null});
     });
 
     it('returns {status: 200, payload: content} if there is a storage item', async () => {
-      const key = 'http://localhost/exposure-configuration/region.json';
       const payload = {foo: 'bar'};
-      AsyncStorage.getItem.mockReturnValue(JSON.stringify(payload));
+      storageService.retrieve.mockReturnValue(JSON.stringify(payload));
       const result = await backendService.getStoredRegionContent();
-      expect(AsyncStorage.getItem).toHaveBeenCalledWith(key);
+      expect(storageService.retrieve).toHaveBeenCalledWith(StorageDirectory.RegionContentKey);
       expect(result).toStrictEqual({status: 200, payload});
     });
   });
 
   describe('getRegionContent', () => {
-    const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', 'region');
+    const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
 
     it('returns stored content if fetch throws an error', async () => {
       // eslint-disable-next-line no-global-assign
@@ -482,16 +488,13 @@ describe('BackendService', () => {
       const spy = jest.spyOn(backendService, 'isValidRegionContent').mockImplementation(() => true);
 
       expect(await backendService.getRegionContent()).toStrictEqual({status: 200, payload});
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-        'http://localhost/exposure-configuration/region.json',
-        JSON.stringify(payload),
-      );
+      expect(storageService.save).toHaveBeenCalledWith(StorageDirectory.RegionContentKey, JSON.stringify(payload));
 
       spy.mockReset();
     });
   });
   describe('filterNonContagiousTEKs', () => {
-    const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', 'region');
+    const backendService = new BackendService('http://localhost', 'https://localhost', 'mock', storageService);
 
     it('does not filter out TEKs if no date is provided', async () => {
       const contagiousDateInfo: ContagiousDateInfo = {
