@@ -13,7 +13,7 @@ export const DiagnosedShareView = ({isBottomSheetExpanded}: {isBottomSheetExpand
   const navigation = useNavigation();
   const toDataShare = useCallback(async () => {
     const initialTekUploadComplete = await DefaultStorageService.sharedInstance().retrieve(
-      StorageDirectory.InitialTekUploadCompleteKey,
+      StorageDirectory.GlobalInitialTekUploadCompleteKey,
     );
     const screen = initialTekUploadComplete === 'false' ? 'Step2' : 'TekUploadSubsequentDays';
     return navigation.navigate('DataSharing', {screen});

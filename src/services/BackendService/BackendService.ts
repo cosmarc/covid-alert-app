@@ -68,7 +68,7 @@ export class BackendService implements BackendInterface {
   };
 
   async getStoredRegionContent(): Promise<RegionContentResponse> {
-    const storedRegionContent = await this.storageService.retrieve(StorageDirectory.RegionContentKey);
+    const storedRegionContent = await this.storageService.retrieve(StorageDirectory.BackendServiceRegionContentKey);
     if (storedRegionContent) {
       return {status: 200, payload: JSON.parse(storedRegionContent)};
     }
@@ -81,7 +81,7 @@ export class BackendService implements BackendInterface {
       const response = await fetch(this.getRegionContentUrl(), FETCH_HEADERS);
       const payload = await response.json();
       this.isValidRegionContent({status: response.status, payload});
-      await this.storageService.save(StorageDirectory.RegionContentKey, JSON.stringify(payload));
+      await this.storageService.save(StorageDirectory.BackendServiceRegionContentKey, JSON.stringify(payload));
       return {status: 200, payload};
     } catch (err) {
       captureMessage('getRegionContent - fetch error', {err: err.message});
@@ -164,12 +164,15 @@ export class BackendService implements BackendInterface {
       return;
     }
     const lastUploadedTekStartTime = uploadedTEKs[0].rollingStartIntervalNumber.toString();
-    await this.storageService.save(StorageDirectory.LastUploadedTekStartTimeKey, lastUploadedTekStartTime);
+    await this.storageService.save(
+      StorageDirectory.BackendServiceLastUploadedTekStartTimeKey,
+      lastUploadedTekStartTime,
+    );
   };
 
   filterOldTEKs = async () => {
     const lastUploadedTekStartTime = Number(
-      await this.storageService.retrieve(StorageDirectory.LastUploadedTekStartTimeKey),
+      await this.storageService.retrieve(StorageDirectory.BackendServiceLastUploadedTekStartTimeKey),
     );
     return (key: TemporaryExposureKey) => {
       if (!lastUploadedTekStartTime) {

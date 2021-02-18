@@ -166,7 +166,7 @@ describe('ExposureNotificationService', () => {
     Platform.OS = 'ios';
     service.systemStatus.set(SystemStatus.Active);
     when(storageService.retrieve)
-      .calledWith(StorageDirectory.OnboardedDatetimeKey)
+      .calledWith(StorageDirectory.GlobalOnboardedDatetimeKey)
       .mockResolvedValue(today.getTime());
 
     dateSpy.mockImplementation((...args: any[]) => (args.length > 0 ? new OriginalDate(...args) : today));
@@ -928,7 +928,7 @@ describe('ExposureNotificationService', () => {
   describe('shouldPerformExposureCheck', () => {
     it('returns false if not onboarded', async () => {
       when(storageService.retrieve)
-        .calledWith(StorageDirectory.OnboardedDatetimeKey)
+        .calledWith(StorageDirectory.GlobalOnboardedDatetimeKey)
         .mockResolvedValueOnce(false);
 
       const shouldPerformExposureCheck = await service.shouldPerformExposureCheck();

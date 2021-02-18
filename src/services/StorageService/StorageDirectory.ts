@@ -2,86 +2,90 @@ import {KeyDefinition, StorageType} from './StorageService';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class StorageDirectory {
-  // TO REORGANIZE
-  static readonly OnboardedDatetimeKey: KeyDefinition = {
+  // Global
+  static readonly GlobalOnboardedDatetimeKey: KeyDefinition = {
     keyIdentifier: 'OnboardedDatetime',
     storageType: StorageType.Unsecure,
   };
 
-  static readonly NavigationStateKey: KeyDefinition = {
-    keyIdentifier: 'navigationState',
-    storageType: StorageType.Unsecure,
-  };
-
-  static readonly RegionKey: KeyDefinition = {
+  static readonly GlobalRegionKey: KeyDefinition = {
     keyIdentifier: 'Region',
     storageType: StorageType.Unsecure,
   };
 
-  static readonly LocaleKey: KeyDefinition = {
+  static readonly GlobalLocaleKey: KeyDefinition = {
     keyIdentifier: 'Locale',
     storageType: StorageType.Unsecure,
   };
 
-  static readonly OutbreakHistoryKey: KeyDefinition = {
-    keyIdentifier: 'OutbreakHistory',
-    storageType: StorageType.Unsecure,
-  };
-
-  static readonly CheckInHistoryKey: KeyDefinition = {
-    keyIdentifier: 'CheckInHistory',
-    storageType: StorageType.Unsecure,
-  };
-
-  static readonly IsOnboardedKey: KeyDefinition = {
-    keyIdentifier: 'IsOnboarded',
-    storageType: StorageType.Unsecure,
-  };
-
-  static readonly ForceScreenKey: KeyDefinition = {
-    keyIdentifier: 'ForceScreen',
-    storageType: StorageType.Unsecure,
-  };
-
-  static readonly SkipAllSetKey: KeyDefinition = {
-    keyIdentifier: 'SkipAllSet',
-    storageType: StorageType.Unsecure,
-  };
-
-  static readonly UserStoppedKey: KeyDefinition = {
-    keyIdentifier: 'UserStopped',
-    storageType: StorageType.Unsecure,
-  };
-
-  static readonly HasViewedQRInstructionsKey: KeyDefinition = {
-    keyIdentifier: 'HasViewedQRInstructions',
-    storageType: StorageType.Unsecure,
-  };
-
-  static readonly InitialTekUploadCompleteKey: KeyDefinition = {
+  static readonly GlobalInitialTekUploadCompleteKey: KeyDefinition = {
     keyIdentifier: 'INITIAL_TEK_UPLOAD_COMPLETE',
     storageType: StorageType.Unsecure,
   };
 
-  static readonly RegionContentKey: KeyDefinition = {
-    keyIdentifier: '30F6F699-43F7-44A1-B138-89278C25A1AB',
-    storageType: StorageType.Unsecure,
-  };
-
-  static readonly LastUploadedTekStartTimeKey: KeyDefinition = {
-    keyIdentifier: 'LAST_UPLOADED_TEK_START_TIME',
-    storageType: StorageType.Unsecure,
-  };
-
+  // uuid.ts
   static readonly UUIDKey: KeyDefinition = {
     keyIdentifier: 'UUID_KEY',
     storageType: StorageType.Unsecure,
   };
 
+  // CachedStorageService.ts
+  static readonly CachedStorageServiceIsOnboardedKey: KeyDefinition = {
+    keyIdentifier: 'IsOnboarded',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly CachedStorageServiceForceScreenKey: KeyDefinition = {
+    keyIdentifier: 'ForceScreen',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly CachedStorageServiceSkipAllSetKey: KeyDefinition = {
+    keyIdentifier: 'SkipAllSet',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly CachedStorageServiceUserStoppedKey: KeyDefinition = {
+    keyIdentifier: 'UserStopped',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly CachedStorageServiceHasViewedQRInstructionsKey: KeyDefinition = {
+    keyIdentifier: 'HasViewedQRInstructions',
+    storageType: StorageType.Unsecure,
+  };
+
+  // DevPersistedNavigationContainer.tsx
+  static readonly DevPersistedNavigationContainerNavigationStateKey: KeyDefinition = {
+    keyIdentifier: 'navigationState',
+    storageType: StorageType.Unsecure,
+  };
+
   // OutbreakProvider.tsx
-  static readonly OutbreaksLastCheckedStorageKey: KeyDefinition = {
+  static readonly OutbreakServiceOutbreakHistoryKey: KeyDefinition = {
+    keyIdentifier: 'OutbreakHistory',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly OutbreakServiceCheckInHistoryKey: KeyDefinition = {
+    keyIdentifier: 'CheckInHistory',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly OutbreakServiceOutbreaksLastCheckedStorageKey: KeyDefinition = {
     keyIdentifier: 'A436ED42-707E-11EB-9439-0242AC130002',
     storageType: StorageType.Secure,
+  };
+
+  // BackendService.ts
+  static readonly BackendServiceRegionContentKey: KeyDefinition = {
+    keyIdentifier: '30F6F699-43F7-44A1-B138-89278C25A1AB',
+    storageType: StorageType.Unsecure,
+  };
+
+  static readonly BackendServiceLastUploadedTekStartTimeKey: KeyDefinition = {
+    keyIdentifier: 'LAST_UPLOADED_TEK_START_TIME',
+    storageType: StorageType.Unsecure,
   };
 
   // ExposureNotificationService.ts

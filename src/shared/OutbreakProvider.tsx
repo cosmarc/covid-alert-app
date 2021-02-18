@@ -48,40 +48,51 @@ export class OutbreakService implements OutbreakService {
   }
 
   clearOutbreakHistory = async () => {
-    await this.storageService.save(StorageDirectory.OutbreakHistoryKey, JSON.stringify([]));
+    await this.storageService.save(StorageDirectory.OutbreakServiceOutbreakHistoryKey, JSON.stringify([]));
     this.outbreakHistory.set([]);
   };
 
   addToOutbreakHistory = async (value: OutbreakHistoryItem[]) => {
-    const _outbreakHistory = (await this.storageService.retrieve(StorageDirectory.OutbreakHistoryKey)) || '[]';
+    const _outbreakHistory =
+      (await this.storageService.retrieve(StorageDirectory.OutbreakServiceOutbreakHistoryKey)) || '[]';
     const outbreakHistory = JSON.parse(_outbreakHistory);
     const newOutbreakHistory = outbreakHistory.concat(value);
-    await this.storageService.save(StorageDirectory.OutbreakHistoryKey, JSON.stringify(newOutbreakHistory));
+    await this.storageService.save(
+      StorageDirectory.OutbreakServiceOutbreakHistoryKey,
+      JSON.stringify(newOutbreakHistory),
+    );
     this.outbreakHistory.set(newOutbreakHistory);
   };
 
   addCheckIn = async (value: CheckInData) => {
-    const _checkInHistory = (await this.storageService.retrieve(StorageDirectory.CheckInHistoryKey)) || '[]';
+    const _checkInHistory =
+      (await this.storageService.retrieve(StorageDirectory.OutbreakServiceCheckInHistoryKey)) || '[]';
     const checkInHistory = JSON.parse(_checkInHistory);
     checkInHistory.push(value);
-    await this.storageService.save(StorageDirectory.CheckInHistoryKey, JSON.stringify(checkInHistory));
+    await this.storageService.save(StorageDirectory.OutbreakServiceCheckInHistoryKey, JSON.stringify(checkInHistory));
     this.checkInHistory.set(checkInHistory);
   };
 
   removeCheckIn = async () => {
     // removes most recent Check In
-    const _checkInHistory = (await this.storageService.retrieve(StorageDirectory.CheckInHistoryKey)) || '[]';
+    const _checkInHistory =
+      (await this.storageService.retrieve(StorageDirectory.OutbreakServiceCheckInHistoryKey)) || '[]';
     const checkInHistory = JSON.parse(_checkInHistory);
     const newCheckInHistory = checkInHistory.slice(0, -1);
-    await this.storageService.save(StorageDirectory.CheckInHistoryKey, JSON.stringify(newCheckInHistory));
+    await this.storageService.save(
+      StorageDirectory.OutbreakServiceCheckInHistoryKey,
+      JSON.stringify(newCheckInHistory),
+    );
     this.checkInHistory.set(newCheckInHistory);
   };
 
   init = async () => {
-    const outbreakHistory = (await this.storageService.retrieve(StorageDirectory.OutbreakHistoryKey)) || '[]';
+    const outbreakHistory =
+      (await this.storageService.retrieve(StorageDirectory.OutbreakServiceOutbreakHistoryKey)) || '[]';
     this.outbreakHistory.set(JSON.parse(outbreakHistory));
 
-    const checkInHistory = (await this.storageService.retrieve(StorageDirectory.CheckInHistoryKey)) || '[]';
+    const checkInHistory =
+      (await this.storageService.retrieve(StorageDirectory.OutbreakServiceCheckInHistoryKey)) || '[]';
     this.checkInHistory.set(JSON.parse(checkInHistory));
   };
 
@@ -131,12 +142,15 @@ export class OutbreakService implements OutbreakService {
 
   private getOutbreaksLastCheckedDateTime(): Promise<Date | null> {
     return this.storageService
-      .retrieve(StorageDirectory.OutbreaksLastCheckedStorageKey)
+      .retrieve(StorageDirectory.OutbreakServiceOutbreaksLastCheckedStorageKey)
       .then(value => (value ? new Date(Number(value)) : null));
   }
 
   private markOutbreaksLastCheckedDateTime(date: Date): Promise<void> {
-    return this.storageService.save(StorageDirectory.OutbreaksLastCheckedStorageKey, `${date.getTime()}`);
+    return this.storageService.save(
+      StorageDirectory.OutbreakServiceOutbreaksLastCheckedStorageKey,
+      `${date.getTime()}`,
+    );
   }
 }
 

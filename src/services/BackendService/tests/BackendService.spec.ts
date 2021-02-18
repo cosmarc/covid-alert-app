@@ -247,7 +247,7 @@ describe('BackendService', () => {
       });
 
       expect(storageService.save).toHaveBeenCalledWith(
-        StorageDirectory.LastUploadedTekStartTimeKey,
+        StorageDirectory.BackendServiceLastUploadedTekStartTimeKey,
         sortedKeys[0].rollingStartIntervalNumber.toString(),
       );
     });
@@ -273,7 +273,7 @@ describe('BackendService', () => {
       );
 
       expect(storageService.save).toHaveBeenCalledWith(
-        StorageDirectory.LastUploadedTekStartTimeKey,
+        StorageDirectory.BackendServiceLastUploadedTekStartTimeKey,
         keys[0].rollingStartIntervalNumber.toString(),
       );
     });
@@ -434,7 +434,7 @@ describe('BackendService', () => {
 
     it('returns {status: 400, payload: null} if there is not storage item', async () => {
       const result = await backendService.getStoredRegionContent();
-      expect(storageService.retrieve).toHaveBeenCalledWith(StorageDirectory.RegionContentKey);
+      expect(storageService.retrieve).toHaveBeenCalledWith(StorageDirectory.BackendServiceRegionContentKey);
       expect(result).toStrictEqual({status: 400, payload: null});
     });
 
@@ -442,7 +442,7 @@ describe('BackendService', () => {
       const payload = {foo: 'bar'};
       storageService.retrieve.mockReturnValue(JSON.stringify(payload));
       const result = await backendService.getStoredRegionContent();
-      expect(storageService.retrieve).toHaveBeenCalledWith(StorageDirectory.RegionContentKey);
+      expect(storageService.retrieve).toHaveBeenCalledWith(StorageDirectory.BackendServiceRegionContentKey);
       expect(result).toStrictEqual({status: 200, payload});
     });
   });
@@ -488,7 +488,10 @@ describe('BackendService', () => {
       const spy = jest.spyOn(backendService, 'isValidRegionContent').mockImplementation(() => true);
 
       expect(await backendService.getRegionContent()).toStrictEqual({status: 200, payload});
-      expect(storageService.save).toHaveBeenCalledWith(StorageDirectory.RegionContentKey, JSON.stringify(payload));
+      expect(storageService.save).toHaveBeenCalledWith(
+        StorageDirectory.BackendServiceRegionContentKey,
+        JSON.stringify(payload),
+      );
 
       spy.mockReset();
     });

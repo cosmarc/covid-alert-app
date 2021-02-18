@@ -19,7 +19,10 @@ function DevPersistedNavigationContainerImpl(
       const persistState = async () => {
         persistInteractionRef.current = null;
         try {
-          await DefaultStorageService.sharedInstance().save(StorageDirectory.NavigationStateKey, JSON.stringify(state));
+          await DefaultStorageService.sharedInstance().save(
+            StorageDirectory.DevPersistedNavigationContainerNavigationStateKey,
+            JSON.stringify(state),
+          );
         } catch (error) {
           captureException(`Failed to persist state.`, error);
         }
@@ -43,7 +46,9 @@ function DevPersistedNavigationContainerImpl(
   React.useEffect(() => {
     const loadPersistedState = async () => {
       try {
-        const jsonString = await DefaultStorageService.sharedInstance().retrieve(StorageDirectory.NavigationStateKey);
+        const jsonString = await DefaultStorageService.sharedInstance().retrieve(
+          StorageDirectory.DevPersistedNavigationContainerNavigationStateKey,
+        );
         if (jsonString != null) {
           setInitialState(JSON.parse(jsonString));
         }

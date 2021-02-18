@@ -618,7 +618,7 @@ export class ExposureNotificationService {
   public shouldPerformExposureCheck = async () => {
     const today = getCurrentDate();
     const exposureStatus = this.exposureStatus.get();
-    const onboardedDatetime = await this.storageService.retrieve(StorageDirectory.OnboardedDatetimeKey);
+    const onboardedDatetime = await this.storageService.retrieve(StorageDirectory.GlobalOnboardedDatetimeKey);
 
     if (!onboardedDatetime) {
       log.debug({

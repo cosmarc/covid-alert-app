@@ -37,7 +37,7 @@ export const BaseTekUploadView = ({
   const exposureHistory = useExposureHistory();
 
   const onSuccess = useCallback(() => {
-    DefaultStorageService.sharedInstance().save(StorageDirectory.InitialTekUploadCompleteKey, 'true');
+    DefaultStorageService.sharedInstance().save(StorageDirectory.GlobalInitialTekUploadCompleteKey, 'true');
     navigation.navigate('Home');
   }, [navigation]);
   // TEK = Temporary Exposure Key

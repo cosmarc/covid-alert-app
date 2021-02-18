@@ -24,9 +24,9 @@ const checkForNotifications = async (i18n: I18n) => {
   const readReceipts: string[] = await getReadReceipts();
 
   const selectedRegion: string =
-    (await DefaultStorageService.sharedInstance().retrieve(StorageDirectory.RegionKey)) || 'CA';
+    (await DefaultStorageService.sharedInstance().retrieve(StorageDirectory.GlobalRegionKey)) || 'CA';
   const selectedLocale: string =
-    (await DefaultStorageService.sharedInstance().retrieve(StorageDirectory.LocaleKey)) || 'en';
+    (await DefaultStorageService.sharedInstance().retrieve(StorageDirectory.GlobalLocaleKey)) || 'en';
   const messageToDisplay = messages.find(message =>
     shouldDisplayNotification(message, selectedRegion, selectedLocale, readReceipts),
   );

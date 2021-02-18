@@ -21,7 +21,7 @@ export const FormScreen = () => {
   const [loading, setLoading] = useState(false);
   const {startSubmission} = useReportDiagnosis();
   const onSuccess = useCallback(() => {
-    DefaultStorageService.sharedInstance().save(StorageDirectory.InitialTekUploadCompleteKey, 'false');
+    DefaultStorageService.sharedInstance().save(StorageDirectory.GlobalInitialTekUploadCompleteKey, 'false');
     navigation.navigate('Step2');
   }, [navigation]);
 

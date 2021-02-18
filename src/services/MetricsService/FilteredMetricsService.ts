@@ -211,7 +211,7 @@ export class FilteredMetricsService {
   }
 
   private async getRegion(): Promise<string> {
-    const regionOpt = await DefaultStorageService.sharedInstance().retrieve(StorageDirectory.RegionKey);
+    const regionOpt = await DefaultStorageService.sharedInstance().retrieve(StorageDirectory.GlobalRegionKey);
     return regionOpt ? regionOpt : 'None';
   }
 }
